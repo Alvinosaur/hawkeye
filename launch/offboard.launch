@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <include file="$(find px4)/launch/mavros_posix_sitl.launch"/>
-
-    <node name="offboard" pkg="offboard" type="offboard" output="screen"/>
-</launch>
