@@ -48,6 +48,7 @@ int main(int argc, char **argv)
         local_pos_pub.publish(pose);
         ros::spinOnce();
         rate.sleep();
+        ROS_INFO("Sending initial pos");
     }
 
     mavros_msgs::SetMode offb_set_mode;
@@ -83,6 +84,5 @@ int main(int argc, char **argv)
         rate.sleep();
     }
 
-    return 0;
 }
 

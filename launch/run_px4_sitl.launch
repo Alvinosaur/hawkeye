@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+<!--px4 firmware in SITL-->
+<!--Original Source: https://github.com/icsl-Jeon/px4_code/blob/master/launch/run_px4_for_sitl.launch-->
+<!--
+<include file = "$(find px4)/launch/posix_sitl.launch">
+    <arg name="gui" value="false"/>
+</include>
+-->
+
+<arg name = "world_name" default = "target_tracking"/>
+<arg name="world_file" default="$(find hawkeye)/worlds/$(arg world_name).world"/>
+<arg name="target_name" default="target"/>
+<arg name="spawn_target" default = "false"/>
+<arg name="display" default = "true"/>
+
+
+<include file = "$(find gazebo_ros)/launch/empty_world.launch">
+<!--    <arg name="gui" value="false"/>-->
+	<!--ros plugins should be disabled! for world file -->
+	<arg name="world_name" value="$(arg world_file)"/>
+	<arg name="verbose" value="true"/>
+</include>
+
+<!--mavlink-->
+<arg name="tgt_system" default="1" />
+<arg name="tgt_component" default="1" />
+
+<include file = "$(find mavros)/launch/px4.launch">
+    <arg name="fcu_url" value="udp://:14540@192.168.1.36:14557"/>
+<!--    <arg name="fcu_url" value="udp://:14540@127.0.0.1:14557"/>-->
+</include>
+
+<node pkg="hawkeye" type="target_gt" name="hawkeye_target_gt_node"/>
+
+</launch>
