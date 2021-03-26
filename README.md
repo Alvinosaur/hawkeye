@@ -13,6 +13,7 @@ roscore
 ```
 2. Start up Px4 Drone Simulator using ROS Gazebo with custom world:
 ```
+catkin build
 source your_workspace/setup.bash
 export GAZEBO_PLUGIN_PATH=$GAZEBO_PLUGIN_PATH:/home/alvin/drone_ws/src/PX4-Autopilot/build/px4_sitl_default/build_g$
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/alvin/drone_ws/src/PX4-Autopilot/Tools/sitl_gazebo/models
