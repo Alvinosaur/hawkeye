@@ -7,6 +7,7 @@ from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float32, Float64, String, Header
 import time
 from pyquaternion import Quaternion
+from scipy.spatial.transform import Rotation
 import math
 import numpy as np
 import threading
@@ -89,7 +90,7 @@ class Px4Controller:
 
     def takeoff(self):
         max_count = 100  # 200 * 0.2 sec = 20 sec for takeoff
-        takeoff_pos = self.construct_target(x=0, y=0, z=self.takeoff_height, yaw=self.current_heading)
+        takeoff_pos = self.construct_target(x=0, y=0, z=self.takeoff_height)
         count = 0
         while not self.takeoff_detection() and count < max_count:
             self.pos_control_pub.publish(takeoff_pos)
@@ -101,7 +102,7 @@ class Px4Controller:
 
         return count < max_count
 
-    def construct_target(self, x, y, z, yaw, yaw_rate=1):
+    def construct_target(self, x, y, z, q=np.array([0, 0, 0, 1])):
         target_raw_pose = PoseStamped()
         target_raw_pose.header.stamp = rospy.Time.now()
 
@@ -115,7 +116,10 @@ class Px4Controller:
         #                             + PositionTarget.IGNORE_AFX + PositionTarget.IGNORE_AFY + PositionTarget.IGNORE_AFZ \
         #                             + PositionTarget.FORCE
 
-        target_raw_pose.pose.orientation.z = yaw
+        target_raw_pose.pose.orientation.x = q[0]
+        target_raw_pose.pose.orientation.y = q[1]
+        target_raw_pose.pose.orientation.z = q[2]
+        target_raw_pose.pose.orientation.w = q[3]
         # target_raw_pose.yaw = yaw
         # target_raw_pose.yaw_rate = yaw_rate
 
@@ -312,9 +316,12 @@ class Px4Controller:
         att.thrust = 0.7
         att.type_mask = 3  # ignore roll and pitch rate
 
+        q = Rotation.from_euler('zyx', [45, 0, 0], degrees=True).as_quat()
+
         while self.arm_state and self.offboard_state and not rospy.is_shutdown():
             att.header.stamp = rospy.Time.now()
-            self.att_control_pub.publish(att)
+            desired_pos = self.construct_target(x=0, y=0, z=8, q=q)
+            self.pos_control_pub.publish(desired_pos)
             if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):
                 if self.disarm():
                     self.state = "DISARMED"
