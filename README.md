@@ -1,17 +1,32 @@
 # hawkeye
-Autonomous Drone Target Following 
 
-## Tutorials and resources uused:
+Autonomous Drone Target Following
+
+## Tutorials and resources used:
+
 http://gazebosim.org/tutorials?tut=animated_box
 https://github.com/icsl-Jeon/px4_code/blob/master/launch/run_px4_for_sitl.launch
 
+## Useful commands:
+
+```
+rosrun tf static_transform_publisher 0 0 0 0 0.38267273 0 0.92388396 map camera 1000
+```
+
+```
+rosrun rviz rviz -d src/hawkeye/rviz/true_vs_pred_target.rviz
+```
 
 ## Running the Drone Simulator
+
 1. Start up roscore in a separate tab by running:
+
 ```
 roscore
 ```
+
 2. Start up Px4 Drone Simulator using ROS Gazebo with custom world:
+
 ```
 catkin build
 source your_workspace/setup.bash

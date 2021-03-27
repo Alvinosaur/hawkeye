@@ -2,9 +2,12 @@
 import rospy
 from mavros_msgs.msg import GlobalPositionTarget, State, PositionTarget, AttitudeTarget
 from mavros_msgs.srv import CommandBool, CommandTOL, SetMode
-from geometry_msgs.msg import PoseStamped, Twist, Vector3
+from geometry_msgs.msg import PoseStamped, Twist, Vector3, TransformStamped
 from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float32, Float64, String, Header
+# import tf_conversions
+# import tf2_ros
+
 import time
 from pyquaternion import Quaternion
 from scipy.spatial.transform import Rotation
@@ -59,11 +62,6 @@ class Px4Controller:
         self.imu_sub = rospy.Subscriber("/mavros/imu/data", Imu, self.imu_callback)
         # self.battery_sub = rospy.Subscriber("/mavros/battery", Imu, self.battery_callback)
 
-        self.set_target_position_sub = rospy.Subscriber("gi/set_pose/position", PoseStamped,
-                                                        self.set_target_position_callback)
-        self.set_target_yaw_sub = rospy.Subscriber("gi/set_pose/orientation", Float32, self.set_target_yaw_callback)
-        self.custom_activity_sub = rospy.Subscriber("gi/set_activity/type", String, self.custom_activity_callback)
-
         '''
         ros publishers
         '''
@@ -97,7 +95,7 @@ class Px4Controller:
             self.arm_state = self.arm()
             self.offboard_state = self.offboard()
             time.sleep(0.2)
-            print(self.local_pose.pose.position.z)
+            print("Height: %.3f" % self.local_pose.pose.position.z)
             count += 1
 
         return count < max_count
@@ -142,7 +140,6 @@ class Px4Controller:
 
     def local_pose_callback(self, msg):
         self.local_pose = msg
-        self.local_enu_position = msg
 
     def mavros_state_callback(self, msg):
         self.mavros_state = msg.mode
