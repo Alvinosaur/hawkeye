@@ -47,7 +47,7 @@ void posesStampedCallback(ConstPosesStampedPtr &posesStamped)
       ros_pose.pose.orientation.z = orientation.z();
       ros_pose.pose.orientation.w = orientation.w();
 
-      ros_pose.header.frame_id = 1;
+      ros_pose.header.frame_id = "world";
       ros_pose.header.stamp = ros::Time::now();
       ros_forward_pub.publish(ros_pose);
 

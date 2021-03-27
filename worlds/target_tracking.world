@@ -41,15 +41,35 @@
           </geometry>
           <material> <!-- Wheel material -->
             <ambient>1 0 0 1</ambient>
-            <diffuse>1 1 1 1</diffuse>
-            <specular>0 0 0 0</specular>
-            <emissive>0 0 0 1</emissive>
+            <diffuse>1 0 0 1</diffuse>
           </material> <!-- End wheel material -->
         </visual>
       </link>
 
       <plugin name="push_animate" filename="libanimated_box.so"/>
     </model>
+
+    <!--    Visualize Predicted target position-->
+    <model name="pred_target">
+      <pose>0 0 0.5 0 0 0</pose>
+      <link name="link">
+        <!--        Don't enable collisions, purely visual-->
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>.75 .75 .75</size>
+            </box>
+          </geometry>
+          <material> <!-- Wheel material -->
+            <ambient>0 0.5 0.5 1</ambient>
+            <diffuse>.7 .9 0 .7</diffuse>
+          </material> <!-- End wheel material -->
+        </visual>
+      </link>
+
+      <plugin name="push_animate" filename="libviz_pred_target.so"/>
+    </model>
+
 
     <physics name='default_physics' default='0' type='ode'>
       <gravity>0 0 -9.8066</gravity>
