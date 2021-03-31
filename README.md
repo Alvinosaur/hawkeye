@@ -5,7 +5,27 @@ Autonomous Drone Target Following
 ## Tutorials and resources used:
 
 http://gazebosim.org/tutorials?tut=animated_box
+
 https://github.com/icsl-Jeon/px4_code/blob/master/launch/run_px4_for_sitl.launch
+
+## Test Procedure
+
+1. Drone remains stationary in the air and records video of target
+2.
+
+## TODO
+
+1. stream video down to the tx1 and display on hdmi
+2. Integrate KF with tracking pipeline
+3. hook up sensors to drone and calibrate
+4. get camera pose from CAD file
+5. *Where can we even fly the drone? Do we need to get permission*
+6. set up boundaries for drone to not fly into trees (need to define origin and direction of x,y,z axes)
+
+Get practice with basic manual override:
+
+- press button to instantly stabilize drone and make it fly down to the ground
+- if recognize strange behavior
 
 ## Useful commands:
 

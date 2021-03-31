@@ -11,6 +11,7 @@ from geometry_msgs.msg import PoseStamped
 # import tf2_geometry_msgs
 
 from Object_detection.objectDetect import detect_object
+from state_estimation import StateEstimation
 
 DEBUG = True
 
@@ -18,19 +19,21 @@ DEBUG = True
 class TargetEstimator3D(object):
     def __init__(self):
         self.camera_info = self.read_camera_info()
-        # print(self.camera_info.K)
         P = np.array(self.camera_info.P).reshape(3, 4)
         self.K = np.array(self.camera_info.K).reshape(3, 3)
         self.invP = np.linalg.pinv(P)  # pseudo inverse
         self.invK = np.linalg.inv(self.K)
         # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
         self.Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
-        # self.tf_buffer = tf2_ros.Buffer(rospy.Duration(1200))  # tf buffer length
-        # tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
         self.img_msg = None
         self.target_gt_pose_msg = None
         self.drone_pose_msg = None
+
+        # Initialize estimator
+        self.fps = 10
+        acc_std = self.dim / 6
+        self.estimator = StateEstimation.KalmanEstimator(self.fps, self.std, acc_std / 4, (0, 0), (0, 0), (0, 0))
 
     def read_camera_info(self) -> CameraInfo:
         img_info = None
@@ -55,7 +58,12 @@ class TargetEstimator3D(object):
         img = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.width, -1)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         return img
-        # return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+    def estimate_ground_plane(self):
+        # assume ground is flat on z = 0 plane and faces upwards
+        ground_normal = np.array([0, 0, 1])
+        ground_point = np.array([0, 0, 0])
+        return ground_normal, ground_point
 
     def predict_3d_pos(self):
         # read image as RGB format, 8-bit
@@ -104,18 +112,14 @@ class TargetEstimator3D(object):
         R = Rotation.from_quat(q).as_matrix()
         pixel_world = R @ pixel_drone + T
 
+        # calculate ray from camera center to world pixel point
         vec = pixel_world - T
         vec /= np.linalg.norm(vec)
-        ground_normal = np.array([0, 0, 1])
-        ground_point = np.array([0, 0, self.target_gt_pose_msg.pose.position.z / 2])
+
+        # project ray onto ground plane
+        ground_normal, ground_point = self.estimate_ground_plane()
         t = (-ground_normal @ (T - ground_point)) / (ground_normal @ vec)
         ground_plane_point = T + t * vec
-        # true_position = [self.target_gt_pose_msg.pose.position.x,
-        #                  self.target_gt_pose_msg.pose.position.y,
-        #                  self.target_gt_pose_msg.pose.position.z]
-        # print(f"true: {true_position}", f"pred: {ground_plane_point}", pixel_world)
-        # import ipdb
-        # ipdb.set_trace()
         ground_plane_point[2] = self.target_gt_pose_msg.pose.position.z
         return ground_plane_point
 
@@ -126,7 +130,6 @@ class TargetEstimator3D(object):
         pose.pose.position.x = x
         pose.pose.position.y = y
         pose.pose.position.z = z
-        # pose.pose.orientation = [0, 0, 0, 1]
         pose.header.stamp = rospy.Time.now()
         return pose
 
