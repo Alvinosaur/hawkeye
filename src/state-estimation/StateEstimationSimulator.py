@@ -121,19 +121,19 @@ class Observations(object):
         self.std = std
         self.bogus_prob = bogus_prob
 
-    def get_observation(self):
+    def get_observation(self, drone_x, drone_y, width, height):
         # Add random noise with respect to standard deviation
         (x_pos, y_pos) = self.motion.get_pos()
         (obs_x, obs_y) = (np.random.normal(x_pos, self.std), np.random.normal(y_pos, self.std))
 
         # With small probability, give a completely bogus point
-        multiplier = 10
         p = random.uniform(0, 1)
         if (p < self.bogus_prob):
-            #return (obs_x + random.choice([-1, 1]) * self.std * multiplier, 
-            #        obs_y + random.choice([-1, 1]) * self.std * multiplier)
-            return (-1, -1)
-        return (obs_x, obs_y)
+            return (random.randint(-width // 2, width // 2) + drone_x, 
+                    random.randint(-height // 2, height // 2) + drone_y)
+        else:
+            return (obs_x, obs_y)
+
 
 class PygameGame(object):
 
@@ -160,6 +160,7 @@ class PygameGame(object):
         self.obs_errors = []
         self.pred_errors = []
         self.drone_errors = []
+        self.frame_count = 0
 
         # Initialize random target motion
         t_max = 3
@@ -175,12 +176,14 @@ class PygameGame(object):
         p_init = self.motion.get_pos()
         v_init = self.motion.get_vel(self.fps)
         a_init = self.motion.get_acc(self.fps)
+        p_init_ = (p_init[0], p_init[1], 0) # Add dummy z-coordinate
+        v_init_ = (v_init[0], v_init[1], 0)
+        a_init_ = (a_init[0], a_init[1], 0)
         acc_std = self.dim / 6 # TODO: TUNE THIS PARAMETER
-        self.estimator = se.KalmanEstimator(self.fps, self.std, acc_std / 4, p_init, v_init, a_init)
+        self.estimator = se.KalmanEstimator(self.dim, self.std, acc_std / 4, p_init_, v_init_, a_init_)
 
-        # Initialize drone speed
+        # Initialize drone position
         (self.drone_x, self.drone_y) = p_init
-        (self.drone_vx, self.drone_vy) = v_init
     
     def mousePressed(self, x, y):
         pass
@@ -223,6 +226,12 @@ class PygameGame(object):
 
     def timerFired(self, dt):
         if not self.ended:
+            t = self.frame_count / self.fps
+
+            # Predict target's state
+            (self.pred_x, self.pred_y, tmp1, self.drone_vx, self.drone_vy, tmp2, self.drone_ax, self.drone_ay, tmp3) = \
+                self.estimator.predict_target_state(t)
+
             # Move drone
             self.drone_x += self.drone_vx / self.fps
             self.drone_y += self.drone_vy / self.fps
@@ -230,21 +239,25 @@ class PygameGame(object):
             # Move target
             self.motion.incr()
 
-            # Make an observation
-            (self.obs_x, self.obs_y) = self.observations.get_observation()
+            if (self.frame_count % 2 == 0):
+                # Sample target's motion
+                (self.obs_x, self.obs_y) = self.observations.get_observation(self.drone_x, self.drone_y, self.width, self.height)
 
-            # Add observation to estimator
-            self.estimator.observe(self.obs_x, self.obs_y)
+                # Add sample to estimator
+                self.estimator.receive_sample(self.obs_x - self.drone_x, self.obs_y - self.drone_y, 0, t)
 
-            # Predict target's position, velocity
-            (self.pred_x, self.pred_y) = self.estimator.predict()
-            (self.drone_vx, self.drone_vy) = self.estimator.get_vel()
+            else:
+                # Add drone's state to estimator
+                self.estimator.receive_drone_state(self.drone_x, self.drone_y, 0, self.drone_vx, self.drone_vy, 0, self.drone_ax, self.drone_ay, 0, t)
 
             # Calculate error
             (x, y) = self.motion.get_pos()
             self.obs_errors.append(distance(x, y, self.obs_x, self.obs_y))
             self.pred_errors.append(distance(x, y, self.pred_x, self.pred_y))
             self.drone_errors.append(distance(x, y, self.drone_x, self.drone_y))
+
+            # Increment frame
+            self.frame_count += 1
 
         if self.motion is None or self.motion.at_end():
             self.ended = True
