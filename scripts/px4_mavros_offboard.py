@@ -79,34 +79,34 @@ class Px4Controller:
         self.armService = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
         self.flightModeService = rospy.ServiceProxy('/mavros/set_mode', SetMode)
 
-        FLAT_STATES = 7
-        FLAT_CTRLS = 4
-        A = np.zeros((FLAT_STATES, FLAT_STATES))
-        A[0:3, 3:6] = np.eye(3)
-        B = np.zeros((FLAT_STATES, FLAT_CTRLS))
-        B[3:, :] = np.eye(4)
-        Gff = np.array([[0, 0, g, 0]]).T  # gravity compensation
-        Q = np.diag([20, 20, 20, 0.1, 0.1, 0.1, 1])
-        R = np.diag([.1, .1, .1, 10])
-        S = Q * 10
-
-        # u_lower = np.array([[-1, -1]]).T
-        # u_upper = np.array([[3, 3]]).T
-        # u_constraints = np.hstack([u_lower, u_upper])
-
-        self.dt = 0.1
-        self.N = 10  # 1 second horizon
-
-        x_lower = np.array([[-1, -1, -1, -1]]).T
-        x_upper = np.array([[5, 6, 3, 3]]).T
-        x_constraints = np.hstack([x_lower, x_upper])
-        self.mpc = DroneMPC(A, B, Q, R, S, N=self.N, dt=self.dt, x_constraints=x_constraints)
-
-        self.pid_vx = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-        self.pid_vy = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-        self.pid_vz = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-
-        print("Px4 Controller Initialized!")
+        # FLAT_STATES = 7
+        # FLAT_CTRLS = 4
+        # A = np.zeros((FLAT_STATES, FLAT_STATES))
+        # A[0:3, 3:6] = np.eye(3)
+        # B = np.zeros((FLAT_STATES, FLAT_CTRLS))
+        # B[3:, :] = np.eye(4)
+        # Gff = np.array([[0, 0, g, 0]]).T  # gravity compensation
+        # Q = np.diag([20, 20, 20, 0.1, 0.1, 0.1, 1])
+        # R = np.diag([.1, .1, .1, 10])
+        # S = Q * 10
+        #
+        # # u_lower = np.array([[-1, -1]]).T
+        # # u_upper = np.array([[3, 3]]).T
+        # # u_constraints = np.hstack([u_lower, u_upper])
+        #
+        # self.dt = 0.1
+        # self.N = 10  # 1 second horizon
+        #
+        # x_lower = np.array([[-1, -1, -1, -1]]).T
+        # x_upper = np.array([[5, 6, 3, 3]]).T
+        # x_constraints = np.hstack([x_lower, x_upper])
+        # self.mpc = DroneMPC(A, B, Q, R, S, N=self.N, dt=self.dt, x_constraints=x_constraints)
+        #
+        # self.pid_vx = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
+        # self.pid_vy = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
+        # self.pid_vz = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
+        #
+        # print("Px4 Controller Initialized!")
 
     def check_connection(self):
         for i in range(10):
@@ -155,17 +155,17 @@ class Px4Controller:
 
         return target_raw_pose
 
-    def generate_action(self, ref_pos_traj):
-        # convert position trajectory to state trajectory
-        
-        dphi = pid_phi(phi - phid)
-        xref = np.array([[
-            pos_g[0], pos_g[1], pos_g[2],
-            vel_g[0], vel_g[1], vel_g[2],
-            psis[0]]]).T
-
-        [thrustd, phid, thetad, psid] = inverse_dyn(rot, x.flatten(), u, m)
-        u = u_mpc[:, 0].flatten() + Gff.flatten()
+    # def generate_action(self, ref_pos_traj):
+    #     # convert position trajectory to state trajectory
+    #
+    #     dphi = pid_phi(phi - phid)
+    #     xref = np.array([[
+    #         pos_g[0], pos_g[1], pos_g[2],
+    #         vel_g[0], vel_g[1], vel_g[2],
+    #         psis[0]]]).T
+    #
+    #     [thrustd, phid, thetad, psid] = inverse_dyn(rot, x.flatten(), u, m)
+    #     u = u_mpc[:, 0].flatten() + Gff.flatten()
 
     def reached_target(self, cur_p, target_p, threshold=0.1):
         delta_x = math.fabs(cur_p.pose.position.x - target_p.position.x)
