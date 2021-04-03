@@ -123,6 +123,10 @@ class KalmanEstimator(object):
         self.P = covar_hat - (K @ self.H @ covar_hat)
         self.last_target_state = (cur_target_state, t)
 
+    # Manually override the current target state
+    def target_state_override(self, x, y, z, vx, vy, vz, ax, ay, az, t):
+         self.last_target_state = (np.array([[x, y, z, vx, vy, vz, ax, ay, az]]).T, t)
+
     # Observe new drone state
     def receive_drone_state(self, x, y, z, vx, vy, vz, ax, ay, az, t):
         (drone_state, prev_t) = self.last_drone_state
