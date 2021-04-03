@@ -1,7 +1,7 @@
 import pygame
 import random
 import numpy as np
-import StateEstimation as se
+import StateEstimation3DAsynch as se
 import math
 
 def distance(x, y, x2, y2):
@@ -180,7 +180,7 @@ class PygameGame(object):
         v_init_ = (v_init[0], v_init[1], 0)
         a_init_ = (a_init[0], a_init[1], 0)
         acc_std = self.dim / 6 # TODO: TUNE THIS PARAMETER
-        self.estimator = se.KalmanEstimator(self.dim, self.std, acc_std / 4, p_init_, v_init_, a_init_)
+        self.estimator = se.KalmanEstimator(self.dim / 10, self.std, acc_std / 4, p_init_, v_init_, a_init_)
 
         # Initialize drone position
         (self.drone_x, self.drone_y) = p_init
@@ -244,7 +244,7 @@ class PygameGame(object):
                 (self.obs_x, self.obs_y) = self.observations.get_observation(self.drone_x, self.drone_y, self.width, self.height)
 
                 # Add sample to estimator
-                self.estimator.receive_sample(self.obs_x - self.drone_x, self.obs_y - self.drone_y, 0, t)
+                self.estimator.receive_sample_relative(self.obs_x - self.drone_x, self.obs_y - self.drone_y, 0, t)
 
             else:
                 # Add drone's state to estimator
