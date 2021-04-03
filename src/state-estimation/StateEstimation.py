@@ -8,7 +8,8 @@ def distance(x, y, z, x2, y2, z2):
 # Kalman Filtering algorithm
 class KalmanEstimator(object):
 
-    def __init__(self, screen_dim, obs_std, acc_std, p_init, v_init, a_init):
+    # Everything is in meters
+    def __init__(self, threshold, obs_std, acc_std, p_init, v_init, a_init):
         # Initialize matrices
         self.acc_var = acc_std**2
         self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -36,8 +37,9 @@ class KalmanEstimator(object):
                            [0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
         # Threshold for bogus values
-        self.threshold = screen_dim / 10
+        self.threshold = threshold
 
+    # Generate F matrix
     def F(self, del_T):
         del_2 = del_T**2
         return np.array([[1, 0, 0, del_T, 0, 0, del_2, 0, 0],
@@ -50,6 +52,7 @@ class KalmanEstimator(object):
                          [0, 0, 0, 0, 0, 0, 0, 1, 0],
                          [0, 0, 0, 0, 0, 0, 0, 0, 1]])
 
+    # Generate Q matrix
     def Q(self, del_T):
         del_2 = del_T**2
         del_3 = del_T**3
@@ -64,8 +67,30 @@ class KalmanEstimator(object):
                          [0, del_2*self.acc_var, 0, 0, del_T*self.acc_var, 0, 0, self.acc_var, 0],
                          [0, 0, del_2*self.acc_var, 0, 0, del_T*self.acc_var, 0, 0, self.acc_var]])
 
-    # Observe a new datapoint
-    def receive_sample(self, dx, dy, dz, t):
+    # Observe a new datapoint where x, y, z are absolute coordinates
+    def receive_sample_absolute(self, x, y, z, t):
+        # See if current target position falls within threshold
+        (target_state, prev_t) = self.last_target_state
+        del_t = t - prev_t
+        if del_t < 0:
+            print("Sample time is in the past")
+            return 1/0
+        F = self.F(del_t)
+        pred_hat = F @ target_state
+        if distance(x, y, z, pred_hat[0][0], pred_hat[1][0], pred_hat[2][0]) > self.threshold:
+            return None
+
+        # Predict next target state
+        Q = self.Q(del_t)
+        covar_hat = (F @ self.P @ F.T) + Q
+        K = (covar_hat @ self.H.T) @ np.linalg.inv((self.H @ covar_hat @ self.H.T) + self.R)
+        cur_target_state = pred_hat + (K @ (np.array([[x, y, z]]).T - (self.H @ pred_hat)))
+        self.P = covar_hat - (K @ self.H @ covar_hat)
+        self.last_target_state = (cur_target_state, t)
+
+    # Observe a new datapoint where dx, dy, dz are relative to drone position
+    # REQUIRES THAT receive_drone_state WAS CALLED SOMETIME IN THE NEAR PAST
+    def receive_sample_relative(self, dx, dy, dz, t):
         # Update current drone position and get absolute coords of sample
         (drone_state, prev_t) = self.last_drone_state
         del_t = t - prev_t
