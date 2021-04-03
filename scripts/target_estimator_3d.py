@@ -29,11 +29,17 @@ class TargetEstimator3D(object):
         self.img_msg = None
         self.target_gt_pose_msg = None
         self.drone_pose_msg = None
+        self.t0 = None
 
         # Initialize estimator
-        self.fps = 10
-        acc_std = self.dim / 6
-        self.estimator = StateEstimation.KalmanEstimator(self.fps, self.std, acc_std / 4, (0, 0), (0, 0), (0, 0))
+        # TODO: adjust later to use meters, not screen_dim
+        screen_dim = min(self.camera_info.height, self.camera_info.width)  # min(length, width) of image
+        obs_std = 0.3  # m
+        acc_std = 0.3  # m/s^2
+        p_init = (0, 0, 0)
+        v_init = (0, 0, 0)
+        a_init = (0, 0, 0)
+        self.estimator = StateEstimation.KalmanEstimator(screen_dim, obs_std, acc_std, p_init, v_init, a_init)
 
     def read_camera_info(self) -> CameraInfo:
         img_info = None
@@ -84,8 +90,9 @@ class TargetEstimator3D(object):
             return None
 
         x, y, w, h, _ = results
-        centerX = x + (w / 2)
-        centerY = y + (h / 2)
+        noise = np.random.random(2) * 10
+        centerX = x + (w / 2) + noise[0]
+        centerY = y + (h / 2) + noise[1]
 
         # draw the centerpoint
         image = cv2.circle(image, (int(centerX), int(centerY)), 3, (255, 0, 0), 2)
@@ -119,9 +126,38 @@ class TargetEstimator3D(object):
         # project ray onto ground plane
         ground_normal, ground_point = self.estimate_ground_plane()
         t = (-ground_normal @ (T - ground_point)) / (ground_normal @ vec)
-        ground_plane_point = T + t * vec
-        ground_plane_point[2] = self.target_gt_pose_msg.pose.position.z
-        return ground_plane_point
+        pred_3d_pos_raw = T + t * vec
+        pred_3d_pos_raw[2] = self.target_gt_pose_msg.pose.position.z
+        (predx, predy, predz) = pred_3d_pos_raw
+
+        if self.t0 is None:
+            self.t0 = time.time()
+            self.estimator.target_state_override(x=predx, y=predy, z=predz,
+                                                 vx=0, vy=0, vz=0, ax=0, ay=0, az=0, t=self.t0)
+
+            return pred_3d_pos_raw
+
+        cur_t = time.time()
+        self.estimator.receive_sample_absolute(x=predx, y=predy, z=predz, t=cur_t)
+
+        # call this over a horizon T to get predicted trajectory
+        # for i in range(self.horizon):
+        #     t = cur_t + i * self.dt
+        #     pred_pos = self.estimator.predict_target_state(t)
+
+        offset = 0
+        (x, y, z, vx, vy, vz, ax, ay, az) = self.estimator.predict_target_state(cur_t + offset)
+        pred_kf = np.array([x, y, z])
+
+        gt_pos = np.array([self.target_gt_pose_msg.pose.position.x,
+                           self.target_gt_pose_msg.pose.position.y,
+                           self.target_gt_pose_msg.pose.position.z])
+        error_pred_kf = np.linalg.norm(pred_kf - gt_pos)
+        error_pred = np.linalg.norm(pred_3d_pos_raw - gt_pos)
+
+        print(f"kf: %.3f, raw: %.3f" % (error_pred_kf, error_pred))
+
+        return pred_kf
 
     def pos_to_stamped_pose(self, pos):
         pose = PoseStamped()
