@@ -32,14 +32,13 @@ class TargetEstimator3D(object):
         self.t0 = None
 
         # Initialize estimator
-        # TODO: adjust later to use meters, not screen_dim
-        screen_dim = min(self.camera_info.height, self.camera_info.width)  # min(length, width) of image
+        ignore_thresh = 2.7  # threshold to ignore new measurement
         obs_std = 0.3  # m
         acc_std = 0.3  # m/s^2
         p_init = (0, 0, 0)
         v_init = (0, 0, 0)
         a_init = (0, 0, 0)
-        self.estimator = StateEstimation.KalmanEstimator(screen_dim, obs_std, acc_std, p_init, v_init, a_init)
+        self.estimator = StateEstimation.KalmanEstimator(ignore_thresh, obs_std, acc_std, p_init, v_init, a_init, )
 
     def read_camera_info(self) -> CameraInfo:
         img_info = None
@@ -94,6 +93,12 @@ class TargetEstimator3D(object):
         centerX = x + (w / 2) + noise[0]
         centerY = y + (h / 2) + noise[1]
 
+        p = np.random.random()
+        if p < 0.2:
+            print("RANDOM!")
+            centerX = np.random.randint(low=0, high=self.camera_info.width)
+            centerY = np.random.randint(low=0, high=self.camera_info.height)
+
         # draw the centerpoint
         image = cv2.circle(image, (int(centerX), int(centerY)), 3, (255, 0, 0), 2)
         cv2.imshow("image", image)
@@ -103,7 +108,9 @@ class TargetEstimator3D(object):
                           centerY + self.img_msg.height / 2,
                           1])
         pixel_cam = self.invK @ pixel  # pixel position in camera frame
-        pixel_cam = np.array([[0, 0, 1], [-1, 0, 0], [0, -1, 0]]) @ pixel_cam
+        pixel_cam = np.array([[0, 0, 1],
+                              [-1, 0, 0],
+                              [0, -1, 0]]) @ pixel_cam
 
         # transform from camera frame to drone frame
         pixel_drone = self.Rdc @ pixel_cam
@@ -135,7 +142,7 @@ class TargetEstimator3D(object):
             self.estimator.target_state_override(x=predx, y=predy, z=predz,
                                                  vx=0, vy=0, vz=0, ax=0, ay=0, az=0, t=self.t0)
 
-            return pred_3d_pos_raw
+            return pred_3d_pos_raw, pred_3d_pos_raw
 
         cur_t = time.time()
         self.estimator.receive_sample_absolute(x=predx, y=predy, z=predz, t=cur_t)
@@ -157,7 +164,7 @@ class TargetEstimator3D(object):
 
         print(f"kf: %.3f, raw: %.3f" % (error_pred_kf, error_pred))
 
-        return pred_kf
+        return pred_kf, pred_3d_pos_raw
 
     def pos_to_stamped_pose(self, pos):
         pose = PoseStamped()
@@ -180,11 +187,14 @@ if __name__ == "__main__":
                                       queue_size=1)
 
     pred_target_pose_pub = rospy.Publisher("/hawkeye/target_pose_pred", PoseStamped, queue_size=10)
+    pred_target_pose_pub_raw = rospy.Publisher("/hawkeye/target_pose_pred_raw", PoseStamped, queue_size=10)
     rate = rospy.Rate(10)  # Hz
     while not rospy.is_shutdown():
-        T = target_estimator.predict_3d_pos()
-        if T is not None:
+        pred = target_estimator.predict_3d_pos()
+        if pred is not None:
+            T, T_raw = pred
             pred_target_pose_pub.publish(target_estimator.pos_to_stamped_pose(T))
+            pred_target_pose_pub_raw.publish(target_estimator.pos_to_stamped_pose(T_raw))
 
         try:  # prevent garbage in console output when thread is killed
             # rate.sleep()
