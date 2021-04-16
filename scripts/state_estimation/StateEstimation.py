@@ -9,7 +9,7 @@ def distance(x, y, z, x2, y2, z2):
 class KalmanEstimator(object):
 
     # Everything is in meters
-    def __init__(self, threshold, obs_std, acc_std, p_init, v_init, a_init):
+    def __init__(self, obs_std, acc_std, p_init, v_init, a_init, threshold=np.Inf):
         # Initialize matrices
         self.acc_var = acc_std**2
         self.H = np.array([[1, 0, 0, 0, 0, 0, 0, 0, 0],

@@ -2,7 +2,8 @@
 import rospy
 from mavros_msgs.msg import GlobalPositionTarget, State, PositionTarget, AttitudeTarget
 from mavros_msgs.srv import CommandBool, CommandTOL, SetMode
-from geometry_msgs.msg import PoseStamped, Twist, Vector3, TransformStamped
+from geometry_msgs.msg import PoseStamped, TwistStamped, Vector3
+from nav_msgs.msg import Path
 from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float32, Float64, String, Header
 # import tf_conversions
@@ -16,9 +17,8 @@ import numpy as np
 import threading
 from simple_pid import PID
 
-from inverseDyn import inverse_dyn
 from drone_mpc import DroneMPC
-
+import utils
 
 # Enums: https://mavlink.io/en/messages/common.html#MAV_FRAME
 # SET_POSITION_TARGET_LOCAL_NED: https://mavlink.io/en/messages/common.html#SET_POSITION_TARGET_LOCAL_NED
@@ -42,6 +42,7 @@ class Px4Controller:
         self.imu_state = None
         self.gps = None
         self.local_pose = None
+        self.local_vel = None
         self.current_state = None
         self.battery_state = None
         self.current_heading = None
@@ -56,15 +57,30 @@ class Px4Controller:
         self.received_imu = False
         self.frame = "BODY"
 
+        self.target_path = None
         self.state = None
+        self.X_mpc = None
+        self.U_mpc = None
 
+        # motion planner
+        self.N = 5
+        self.dt = 0.1
+        self.drone_mpc = DroneMPC(N=self.N)
+
+        rospy.init_node("offboard_node")
         '''
         ros subscribers
         '''
-        self.local_pose_sub = rospy.Subscriber("/mavros/local_position/pose", PoseStamped, self.local_pose_callback)
-        self.mavros_sub = rospy.Subscriber("/mavros/state", State, self.mavros_state_callback)
-        self.gps_sub = rospy.Subscriber("/mavros/global_position/global", NavSatFix, self.gps_callback)
-        self.imu_sub = rospy.Subscriber("/mavros/imu/data", Imu, self.imu_callback)
+        self.local_vel_sub = rospy.Subscriber("/mavros/local_position/velocity_local", TwistStamped,
+                                              self.local_vel_callback,
+                                              queue_size=1)
+        self.local_pose_sub = rospy.Subscriber("/mavros/local_position/pose", PoseStamped, self.local_pose_callback,
+                                               queue_size=1)
+        self.target_path_sub = rospy.Subscriber("/hawkeye/target_path_pred", Path, self.target_path_cb,
+                                                queue_size=1)
+        self.mavros_sub = rospy.Subscriber("/mavros/state", State, self.mavros_state_callback, queue_size=1)
+        # self.gps_sub = rospy.Subscriber("/mavros/global_position/global", NavSatFix, self.gps_callback, queue_size=1)
+        self.imu_sub = rospy.Subscriber("/mavros/imu/data", Imu, self.imu_callback, queue_size=1)
         # self.battery_sub = rospy.Subscriber("/mavros/battery", Imu, self.battery_callback)
 
         '''
@@ -72,6 +88,7 @@ class Px4Controller:
         '''
         self.pos_control_pub = rospy.Publisher('mavros/setpoint_position/local', PoseStamped, queue_size=10)
         self.att_control_pub = rospy.Publisher('mavros/setpoint_raw/attitude', AttitudeTarget, queue_size=10)
+        self.output_path_pub = rospy.Publisher('/hawkeye/drone_path', Path, queue_size=10)
 
         '''
         ros services
@@ -79,34 +96,28 @@ class Px4Controller:
         self.armService = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
         self.flightModeService = rospy.ServiceProxy('/mavros/set_mode', SetMode)
 
-        # FLAT_STATES = 7
-        # FLAT_CTRLS = 4
-        # A = np.zeros((FLAT_STATES, FLAT_STATES))
-        # A[0:3, 3:6] = np.eye(3)
-        # B = np.zeros((FLAT_STATES, FLAT_CTRLS))
-        # B[3:, :] = np.eye(4)
-        # Gff = np.array([[0, 0, g, 0]]).T  # gravity compensation
-        # Q = np.diag([20, 20, 20, 0.1, 0.1, 0.1, 1])
-        # R = np.diag([.1, .1, .1, 10])
-        # S = Q * 10
-        #
-        # # u_lower = np.array([[-1, -1]]).T
-        # # u_upper = np.array([[3, 3]]).T
-        # # u_constraints = np.hstack([u_lower, u_upper])
-        #
-        # self.dt = 0.1
-        # self.N = 10  # 1 second horizon
-        #
-        # x_lower = np.array([[-1, -1, -1, -1]]).T
-        # x_upper = np.array([[5, 6, 3, 3]]).T
-        # x_constraints = np.hstack([x_lower, x_upper])
-        # self.mpc = DroneMPC(A, B, Q, R, S, N=self.N, dt=self.dt, x_constraints=x_constraints)
-        #
-        # self.pid_vx = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-        # self.pid_vy = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-        # self.pid_vz = PID(Kp=7, Ki=0, Kd=1, setpoint=0)
-        #
-        # print("Px4 Controller Initialized!")
+        # Drone camera parameters
+        camera_info = utils.read_camera_info()
+        P = np.array(camera_info.P).reshape(3, 4)
+        K = np.array(camera_info.K).reshape(3, 3)
+        invP = np.linalg.pinv(P)  # pseudo inverse
+        invK = np.linalg.inv(K)
+        # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
+        Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
+
+        # we want target to lie in center of image
+        target_pix_x = camera_info.width / 2
+        target_pix_y = camera_info.height / 2
+        target_pixel = np.array([target_pix_x + camera_info.width / 2,
+                                 target_pix_y + camera_info.height / 2,
+                                 1])
+        pixel_cam = invK @ target_pixel  # pixel position in camera frame
+        pixel_cam = np.array([[0, 0, 1],
+                              [-1, 0, 0],
+                              [0, -1, 0]]) @ pixel_cam
+
+        # transform from camera frame to drone frame
+        self.pixel_drone = Rdc @ pixel_cam
 
     def check_connection(self):
         for i in range(10):
@@ -155,17 +166,34 @@ class Px4Controller:
 
         return target_raw_pose
 
-    # def generate_action(self, ref_pos_traj):
-    #     # convert position trajectory to state trajectory
-    #
-    #     dphi = pid_phi(phi - phid)
-    #     xref = np.array([[
-    #         pos_g[0], pos_g[1], pos_g[2],
-    #         vel_g[0], vel_g[1], vel_g[2],
-    #         psis[0]]]).T
-    #
-    #     [thrustd, phid, thetad, psid] = inverse_dyn(rot, x.flatten(), u, m)
-    #     u = u_mpc[:, 0].flatten() + Gff.flatten()
+    def generate_action(self):
+        if self.local_pose is None or self.local_vel is None:
+            return None
+        assert self.target_path is not None
+        target_traj = [(pose.pose.position.x,
+                        pose.pose.position.y,
+                        pose.pose.position.z) for pose in self.target_path.poses]
+        x = np.array([
+            self.local_pose.pose.position.x,
+            self.local_pose.pose.position.y,
+            self.local_pose.pose.position.z,
+            self.local_vel.twist.linear.x,
+            self.local_vel.twist.linear.y,
+            self.local_vel.twist.linear.z,
+            self.local_pose.pose.orientation.z
+        ])
+        q = [self.local_pose.pose.orientation.x,
+             self.local_pose.pose.orientation.y,
+             self.local_pose.pose.orientation.z,
+             self.local_pose.pose.orientation.w]
+        phi = Rotation.from_quat(q).as_euler("XYZ")[0]
+        user_sq_dist = 0.5
+        X_mpc, self.U_mpc = self.drone_mpc.solve(
+            x0=x, u0=None, target_pixel=self.pixel_drone,
+            phi0=phi, target_traj=target_traj, user_sq_dist=user_sq_dist)
+
+        pos_traj = [X_mpc[i, :3].tolist() for i in range(self.N)]
+        self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
 
     def reached_target(self, cur_p, target_p, threshold=0.1):
         delta_x = math.fabs(cur_p.pose.position.x - target_p.position.x)
@@ -177,8 +205,14 @@ class Px4Controller:
         else:
             return False
 
+    def target_path_cb(self, msg):
+        self.target_path = msg
+
     def local_pose_callback(self, msg):
         self.local_pose = msg
+
+    def local_vel_callback(self, msg):
+        self.local_vel = msg
 
     def mavros_state_callback(self, msg):
         self.mavros_state = msg.mode
@@ -193,96 +227,6 @@ class Px4Controller:
 
     def gps_callback(self, msg):
         self.gps = msg
-
-    def FLU2ENU(self, msg):
-        FLU_x = msg.pose.position.x * math.cos(self.current_heading) - msg.pose.position.y * math.sin(
-            self.current_heading)
-        FLU_y = msg.pose.position.x * math.sin(self.current_heading) + msg.pose.position.y * math.cos(
-            self.current_heading)
-        FLU_z = msg.pose.position.z
-
-        return FLU_x, FLU_y, FLU_z
-
-    def set_target_position_callback(self, msg):
-        print("Received New Position Task!")
-
-        if msg.header.frame_id == 'base_link':
-            '''
-            BODY_FLU
-            '''
-            # For Body frame, we will use FLU (Forward, Left and Up)
-            #           +Z     +X
-            #            ^    ^
-            #            |  /
-            #            |/
-            #  +Y <------body
-
-            self.frame = "BODY"
-
-            print("body FLU frame")
-
-            ENU_X, ENU_Y, ENU_Z = self.FLU2ENU(msg)
-
-            ENU_X = ENU_X + self.local_pose.pose.position.x
-            ENU_Y = ENU_Y + self.local_pose.pose.position.y
-            ENU_Z = ENU_Z + self.local_pose.pose.position.z
-
-            self.cur_target_pose = self.construct_target(ENU_X,
-                                                         ENU_Y,
-                                                         ENU_Z,
-                                                         self.current_heading)
-
-
-        else:
-            '''
-            LOCAL_ENU
-            '''
-            # For world frame, we will use ENU (EAST, NORTH and UP)
-            #     +Z     +Y
-            #      ^    ^
-            #      |  /
-            #      |/
-            #    world------> +X
-
-            self.frame = "LOCAL_ENU"
-            print("local ENU frame")
-
-            self.cur_target_pose = self.construct_target(msg.pose.position.x,
-                                                         msg.pose.position.y,
-                                                         msg.pose.position.z,
-                                                         self.current_heading)
-
-    '''
-     Receive A Custom Activity
-     '''
-
-    def custom_activity_callback(self, msg):
-        print("Received Custom Activity:", msg.data)
-
-        if msg.data == "LAND":
-            print("LANDING!")
-            self.state = "LAND"
-            self.cur_target_pose = self.construct_target(self.local_pose.pose.position.x,
-                                                         self.local_pose.pose.position.y,
-                                                         0.1,
-                                                         self.current_heading)
-
-        elif msg.data == "HOVER":
-            print("HOVERING!")
-            self.state = "HOVER"
-            self.hover()
-
-        else:
-            print("Received Custom Activity:", msg.data, "not supported yet!")
-
-    def set_target_yaw_callback(self, msg):
-        print("Received New Yaw Task!")
-
-        yaw_deg = msg.data * math.pi / 180.0
-        self.cur_target_pose = self.construct_target(self.local_pose.pose.position.x,
-                                                     self.local_pose.pose.position.y,
-                                                     self.local_pose.pose.position.z,
-                                                     yaw_deg)
 
     '''
     return yaw from current IMU
@@ -329,7 +273,6 @@ class Px4Controller:
         return reached_takeoff_height and self.offboard_state and self.arm_state
 
     def start(self):
-        rospy.init_node("offboard_node")
         if not self.check_connection():
             print("Failed to connect!")
             return
@@ -358,6 +301,8 @@ class Px4Controller:
             att.header.stamp = rospy.Time.now()
             desired_pos = self.construct_target(x=0, y=0, z=8, q=q)
             self.pos_control_pub.publish(desired_pos)
+            # if self.target_path is not None:
+            #     self.generate_action()
             if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):
                 if self.disarm():
                     self.state = "DISARMED"
@@ -367,7 +312,18 @@ class Px4Controller:
             except rospy.ROSInterruptException:
                 pass
 
+    def start_debug(self):
+        rate = rospy.Rate(10)  # Hz
+        while not rospy.is_shutdown():
+            if self.target_path is not None:
+                self.generate_action()
+
+            try:  # prevent garbage in console output when thread is killed
+                rate.sleep()
+            except rospy.ROSInterruptException:
+                pass
+
 
 if __name__ == '__main__':
     con = Px4Controller()
-    con.start()
+    con.start_debug()
