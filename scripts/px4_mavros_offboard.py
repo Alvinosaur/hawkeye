@@ -173,6 +173,13 @@ class Px4Controller:
         target_traj = [(pose.pose.position.x,
                         pose.pose.position.y,
                         pose.pose.position.z) for pose in self.target_path.poses]
+
+        q = [self.local_pose.pose.orientation.x,
+             self.local_pose.pose.orientation.y,
+             self.local_pose.pose.orientation.z,
+             self.local_pose.pose.orientation.w]
+        roll, pitch, yaw = Rotation.from_quat(q).as_euler("XYZ")
+
         x = np.array([
             self.local_pose.pose.position.x,
             self.local_pose.pose.position.y,
@@ -180,17 +187,18 @@ class Px4Controller:
             self.local_vel.twist.linear.x,
             self.local_vel.twist.linear.y,
             self.local_vel.twist.linear.z,
-            self.local_pose.pose.orientation.z
+            yaw
         ])
-        q = [self.local_pose.pose.orientation.x,
-             self.local_pose.pose.orientation.y,
-             self.local_pose.pose.orientation.z,
-             self.local_pose.pose.orientation.w]
-        phi = Rotation.from_quat(q).as_euler("XYZ")[0]
+
+        np.savez("drone_target_sample", target_traj=target_traj,
+                 drone_x=x, drone_q=q, pixel_drone=self.pixel_drone)
+        exit(1)
+
+
         user_sq_dist = 0.5
         X_mpc, self.U_mpc = self.drone_mpc.solve(
             x0=x, u0=None, target_pixel=self.pixel_drone,
-            phi0=phi, target_traj=target_traj, user_sq_dist=user_sq_dist)
+            phi0=roll, target_traj=target_traj, user_sq_dist=user_sq_dist)
 
         pos_traj = [X_mpc[i, :3].tolist() for i in range(self.N)]
         self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
@@ -301,8 +309,10 @@ class Px4Controller:
             att.header.stamp = rospy.Time.now()
             desired_pos = self.construct_target(x=0, y=0, z=8, q=q)
             self.pos_control_pub.publish(desired_pos)
-            # if self.target_path is not None:
-            #     self.generate_action()
+            print(self.local_pose.pose.position.z)
+            if np.isclose(self.local_pose.pose.position.z, 8, atol=1e-2):
+                if self.target_path is not None:
+                    self.generate_action()
             if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):
                 if self.disarm():
                     self.state = "DISARMED"
@@ -326,4 +336,4 @@ class Px4Controller:
 
 if __name__ == '__main__':
     con = Px4Controller()
-    con.start_debug()
+    con.start()

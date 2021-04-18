@@ -15,7 +15,7 @@ from Object_detection.objectDetect import detect_object
 from state_estimation import StateEstimation
 import utils
 
-DEBUG = True
+DEBUG = False
 
 
 class TargetEstimator3D(object):
@@ -36,7 +36,7 @@ class TargetEstimator3D(object):
         self.dt = 0.1
 
         # Initialize estimator
-        ignore_thresh = 4.5
+        ignore_thresh = np.Inf
         obs_std = 0.3  # m
         acc_std = 0.3  # m/s^2
         p_init = (0, 0, 0)
@@ -137,7 +137,6 @@ class TargetEstimator3D(object):
         ground_normal, ground_point = self.estimate_ground_plane()
         t = (-ground_normal @ (T - ground_point)) / (ground_normal @ vec)
         pred_3d_pos_raw = T + t * vec
-        pred_3d_pos_raw[2] = self.target_gt_pose_msg.pose.position.z
         (predx, predy, predz) = pred_3d_pos_raw
 
         if self.t0 is None:
