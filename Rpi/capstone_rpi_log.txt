@@ -1,0 +1,6 @@
+Initializing ROS!
+Received event data: "start"
+Processing start event...
+Starting up camera!
+Stopping camera!
+Shutting down ROS!
