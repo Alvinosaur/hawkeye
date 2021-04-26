@@ -44,6 +44,15 @@ def clear_all_events():
     cam_stop_event.clear()
 
 
+def acknowledge(ack_pub, error = None):
+    if error is None:
+        f.write("Sending acknowledgement to Jetson!\n")
+        ack_pub.publish("ACK")
+    else:
+        f.write("Sending error to Jetson!\n")
+        ack_pub.publish(error)
+
+
 # Launch communications between Rpi and flight controller
 def launch_px4():
     global px4_process
@@ -97,7 +106,8 @@ if __name__== '__main__':
         # Initialize ROS
         f.write("Initializing ROS!\n")
         rospy.init_node("img_conv")
-        image_pub = rospy.Publisher('image',Image, queue_size=10) 
+        image_pub = rospy.Publisher('image', Image, queue_size=10) 
+        ack_pub = rospy.Publisher('ack', String, queue_size=10) 
         sb = rospy.Subscriber('events', String, handle_event, queue_size=10)
         bridge = CvBridge()
         rate = rospy.Rate(10)
@@ -107,18 +117,21 @@ if __name__== '__main__':
         px4_launch_event.wait()
         clear_all_events()
         launch_px4()
+        acknowledge(ack_pub)
 
         while not rospy.is_shutdown():
             # Wait for camera startup
             cam_start_event.wait()
             clear_all_events()
             startup_camera()
+            acknowledge(ack_pub)
 
             # Continuously stream video until indicated to shutdown
             while not rospy.is_shutdown():
                 if cam_stop_event.isSet():
                     clear_all_events()
                     shutdown_camera()
+                    acknowledge(ack_pub)
                     break
                 raw_capture = PiRGBArray(camera)
                 camera.capture(raw_capture, 'rgb')
@@ -127,6 +140,7 @@ if __name__== '__main__':
     except Exception as e:
         error_msg = "ERROR: Terminated main.py with exception %s\n" % str(e)
         f.write(error_msg)
+        acknowledge(ack_pub, error_msg)
         shutdown_program()
 
 
