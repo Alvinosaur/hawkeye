@@ -1,0 +1,15 @@
+Initializing ROS!
+Received event data: "launch"
+Processing PX4 launch event...
+Launching communications with Pixhawk!
+Received event data: "cam_start"
+Processing camera start event...
+Starting up camera!
+Received event data: "cam_stop"
+Processing camera stop event...
+Stopping camera!
+Received event data: "cam_start"
+Processing camera start event...
+Starting up camera!
+Received event data: "kill"
+Shutting down program!

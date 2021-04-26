@@ -1,0 +1,695 @@
++ source /home/pi/ros_catkin_ws/devel/setup.bash
+++ CATKIN_SHELL=bash
+++++ dirname /home/pi/ros_catkin_ws/devel/setup.bash
++++ builtin cd /home/pi/ros_catkin_ws/devel
++++ pwd
+++ _CATKIN_SETUP_DIR=/home/pi/ros_catkin_ws/devel
+++ . /home/pi/ros_catkin_ws/devel/setup.sh
++++ : /home/pi/ros_catkin_ws/devel
++++ _SETUP_UTIL=/home/pi/ros_catkin_ws/devel/_setup_util.py
++++ unset _CATKIN_SETUP_DIR
++++ '[' '!' -f /home/pi/ros_catkin_ws/devel/_setup_util.py ']'
+++++ uname -s
++++ _UNAME=Linux
++++ _IS_DARWIN=0
++++ '[' Linux = Darwin ']'
++++ unset _UNAME
++++ export CMAKE_PREFIX_PATH
++++ '[' 0 -eq 0 ']'
++++ export LD_LIBRARY_PATH
++++ unset _IS_DARWIN
++++ export PATH
++++ export PKG_CONFIG_PATH
++++ export PYTHONPATH
++++ '[' -z bash ']'
++++ '[' -d '' ']'
++++ _TMPDIR=/tmp
+++++ mktemp /tmp/setup.sh.XXXXXXXXXX
++++ _SETUP_TMP=/tmp/setup.sh.Atdo9PH12j
++++ unset _TMPDIR
++++ '[' 0 -ne 0 -o '!' -f /tmp/setup.sh.Atdo9PH12j ']'
++++ CATKIN_SHELL=bash
++++ /home/pi/ros_catkin_ws/devel/_setup_util.py
++++ _RC=0
++++ '[' 0 -ne 0 ']'
++++ unset _RC
++++ unset _SETUP_UTIL
++++ . /tmp/setup.sh.Atdo9PH12j
+++++ export CMAKE_PREFIX_PATH=
+++++ CMAKE_PREFIX_PATH=
+++++ export LD_LIBRARY_PATH=
+++++ LD_LIBRARY_PATH=
+++++ export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+++++ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+++++ export PKG_CONFIG_PATH=
+++++ PKG_CONFIG_PATH=
+++++ export PYTHONPATH=
+++++ PYTHONPATH=
+++++ export CMAKE_PREFIX_PATH=/home/pi/ros_catkin_ws/devel:/opt/ros/melodic
+++++ CMAKE_PREFIX_PATH=/home/pi/ros_catkin_ws/devel:/opt/ros/melodic
+++++ export LD_LIBRARY_PATH=/home/pi/ros_catkin_ws/devel/lib:/opt/ros/melodic/lib
+++++ LD_LIBRARY_PATH=/home/pi/ros_catkin_ws/devel/lib:/opt/ros/melodic/lib
+++++ export PATH=/home/pi/ros_catkin_ws/devel/bin:/opt/ros/melodic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+++++ PATH=/home/pi/ros_catkin_ws/devel/bin:/opt/ros/melodic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
+++++ export PKG_CONFIG_PATH=/home/pi/ros_catkin_ws/devel/lib/pkgconfig:/opt/ros/melodic/lib/pkgconfig
+++++ PKG_CONFIG_PATH=/home/pi/ros_catkin_ws/devel/lib/pkgconfig:/opt/ros/melodic/lib/pkgconfig
+++++ export PYTHONPATH=/home/pi/ros_catkin_ws/devel/lib/python2.7/dist-packages:/opt/ros/melodic/lib/python2.7/dist-packages
+++++ PYTHONPATH=/home/pi/ros_catkin_ws/devel/lib/python2.7/dist-packages:/opt/ros/melodic/lib/python2.7/dist-packages
+++++ export _CATKIN_ENVIRONMENT_HOOKS_COUNT=14
+++++ _CATKIN_ENVIRONMENT_HOOKS_COUNT=14
+++++ export _CATKIN_ENVIRONMENT_HOOKS_0=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/06-ctr-nuke.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_0=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/06-ctr-nuke.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_0_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_0_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_1=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_distro.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_1=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_distro.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_1_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_1_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_2=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_etc_dir.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_2=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_etc_dir.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_2_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_2_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_3=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_package_path.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_3=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_package_path.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_3_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_3_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_4=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_python_version.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_4=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_python_version.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_4_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_4_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_5=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_version.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_5=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_version.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_5_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_5_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_6=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosbuild.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_6=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosbuild.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_6_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_6_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_7=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosconsole.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_7=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosconsole.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_7_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_7_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_8=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.roslaunch.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_8=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.roslaunch.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_8_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_8_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_9=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/99.roslisp.sh
+++++ _CATKIN_ENVIRONMENT_HOOKS_9=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/99.roslisp.sh
+++++ export _CATKIN_ENVIRONMENT_HOOKS_9_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_9_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_10=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make.bash
+++++ _CATKIN_ENVIRONMENT_HOOKS_10=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make.bash
+++++ export _CATKIN_ENVIRONMENT_HOOKS_10_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_10_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_11=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make_isolated.bash
+++++ _CATKIN_ENVIRONMENT_HOOKS_11=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make_isolated.bash
+++++ export _CATKIN_ENVIRONMENT_HOOKS_11_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_11_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_12=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/15.rosbash.bash
+++++ _CATKIN_ENVIRONMENT_HOOKS_12=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/15.rosbash.bash
+++++ export _CATKIN_ENVIRONMENT_HOOKS_12_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_12_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ export _CATKIN_ENVIRONMENT_HOOKS_13=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/20.transform.bash
+++++ _CATKIN_ENVIRONMENT_HOOKS_13=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/20.transform.bash
+++++ export _CATKIN_ENVIRONMENT_HOOKS_13_WORKSPACE=/home/pi/ros_catkin_ws/devel
+++++ _CATKIN_ENVIRONMENT_HOOKS_13_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ rm -f /tmp/setup.sh.Atdo9PH12j
++++ unset _SETUP_TMP
++++ _i=0
++++ '[' 0 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_0'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/06-ctr-nuke.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_0
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_0_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_0_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/06-ctr-nuke.sh
+++++ unset CATKIN_TEST_RESULTS_DIR
+++++ unset ROS_TEST_RESULTS_DIR
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=1
++++ '[' 1 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_1'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_distro.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_1
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_1_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_1_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_distro.sh
+++++ '[' -n melodic -a melodic '!=' melodic ']'
+++++ export ROS_DISTRO=melodic
+++++ ROS_DISTRO=melodic
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=2
++++ '[' 2 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_2'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_etc_dir.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_2
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_2_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_2_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_etc_dir.sh
+++++ export ROS_ETC_DIR=/home/pi/ros_catkin_ws/devel/.private/ros_environment/etc/ros
+++++ ROS_ETC_DIR=/home/pi/ros_catkin_ws/devel/.private/ros_environment/etc/ros
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=3
++++ '[' 3 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_3'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_package_path.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_3
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_3_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_3_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_package_path.sh
++++++ cat
+++++ PYTHON_CODE_BUILD_ROS_PACKAGE_PATH='from __future__ import print_function
+import os
+env_name = '\''CMAKE_PREFIX_PATH'\''
+paths = [path for path in os.environ[env_name].split(os.pathsep)] if env_name in os.environ and os.environ[env_name] != '\'''\'' else []
+workspaces = [path for path in paths if os.path.exists(os.path.join(path, '\''.catkin'\''))]
+paths = []
+for workspace in workspaces:
+    filename = os.path.join(workspace, '\''.catkin'\'')
+    data = '\'''\''
+    with open(filename) as f:
+        data = f.read()
+    if data == '\'''\'':
+        paths.append(os.path.join(workspace, '\''share'\''))
+        if os.path.isdir(os.path.join(workspace, '\''stacks'\'')):
+            paths.append(os.path.join(workspace, '\''stacks'\''))
+    else:
+        for source_path in data.split('\'';'\''):
+            paths.append(source_path)
+print(os.pathsep.join(paths))'
++++++ /usr/bin/python2 -c 'from __future__ import print_function
+import os
+env_name = '\''CMAKE_PREFIX_PATH'\''
+paths = [path for path in os.environ[env_name].split(os.pathsep)] if env_name in os.environ and os.environ[env_name] != '\'''\'' else []
+workspaces = [path for path in paths if os.path.exists(os.path.join(path, '\''.catkin'\''))]
+paths = []
+for workspace in workspaces:
+    filename = os.path.join(workspace, '\''.catkin'\'')
+    data = '\'''\''
+    with open(filename) as f:
+        data = f.read()
+    if data == '\'''\'':
+        paths.append(os.path.join(workspace, '\''share'\''))
+        if os.path.isdir(os.path.join(workspace, '\''stacks'\'')):
+            paths.append(os.path.join(workspace, '\''stacks'\''))
+    else:
+        for source_path in data.split('\'';'\''):
+            paths.append(source_path)
+print(os.pathsep.join(paths))'
+++++ export ROS_PACKAGE_PATH=/home/pi/ros_catkin_ws/src/catkin:/home/pi/ros_catkin_ws/src/genmsg:/home/pi/ros_catkin_ws/src/gencpp:/home/pi/ros_catkin_ws/src/geneus:/home/pi/ros_catkin_ws/src/genlisp:/home/pi/ros_catkin_ws/src/gennodejs:/home/pi/ros_catkin_ws/src/genpy:/home/pi/ros_catkin_ws/src/actionlib/actionlib_tools:/home/pi/ros_catkin_ws/src/bond_core/bond_core:/home/pi/ros_catkin_ws/src/cmake_modules:/home/pi/ros_catkin_ws/src/class_loader:/home/pi/ros_catkin_ws/src/common_msgs/common_msgs:/home/pi/ros_catkin_ws/src/roscpp_core/cpp_common:/home/pi/ros_catkin_ws/src/diagnostics/diagnostics:/home/pi/ros_catkin_ws/src/geographic_info/geographic_info:/home/pi/ros_catkin_ws/src/geometry/geometry:/home/pi/ros_catkin_ws/src/geometry2/geometry2:/home/pi/ros_catkin_ws/src/mavlink:/home/pi/ros_catkin_ws/src/message_generation:/home/pi/ros_catkin_ws/src/message_runtime:/home/pi/ros_catkin_ws/src/ros/mk:/home/pi/ros_catkin_ws/src/ros/ros:/home/pi/ros_catkin_ws/src/ros_comm/ros_comm:/home/pi/ros_catkin_ws/src/ros_environment:/home/pi/ros_catkin_ws/src/rosbag_migration_rule:/home/pi/ros_catkin_ws/src/ros/rosbash:/home/pi/ros_catkin_ws/src/ros/rosboost_cfg:/home/pi/ros_catkin_ws/src/ros/rosbuild:/home/pi/ros_catkin_ws/src/ros/rosclean:/home/pi/ros_catkin_ws/src/roscpp_core/roscpp_traits:/home/pi/ros_catkin_ws/src/ros/roscreate:/home/pi/ros_catkin_ws/src/diagnostics/rosdiagnostic:/home/pi/ros_catkin_ws/src/ros_comm/rosgraph:/home/pi/ros_catkin_ws/src/ros/roslang:/home/pi/ros_catkin_ws/src/roslisp:/home/pi/ros_catkin_ws/src/ros/rosmake:/home/pi/ros_catkin_ws/src/ros_comm/rosmaster:/home/pi/ros_catkin_ws/src/rospack:/home/pi/ros_catkin_ws/src/ros/roslib:/home/pi/ros_catkin_ws/src/ros_comm/rosparam:/home/pi/ros_catkin_ws/src/ros_comm/rospy:/home/pi/ros_catkin_ws/src/ros_comm/rosservice:/home/pi/ros_catkin_ws/src/roscpp_core/rostime:/home/pi/ros_catkin_ws/src/roscpp_core/roscpp_serialization:/home/pi/ros_catkin_ws/src/ros_comm/roslaunch:/home/pi/ros_catkin_ws/src/ros/rosunit:/home/pi/ros_catkin_ws/src/angles/angles:/home/pi/ros_catkin_ws/src/mavros/libmavconn:/home/pi/ros_catkin_ws/src/rosconsole:/home/pi/ros_catkin_ws/src/pluginlib:/home/pi/ros_catkin_ws/src/rosconsole_bridge:/home/pi/ros_catkin_ws/src/ros_comm/roslz4:/home/pi/ros_catkin_ws/src/ros_comm/rostest:/home/pi/ros_catkin_ws/src/bond_core/smclib:/home/pi/ros_catkin_ws/src/std_msgs:/home/pi/ros_catkin_ws/src/common_msgs/actionlib_msgs:/home/pi/ros_catkin_ws/src/bond_core/bond:/home/pi/ros_catkin_ws/src/common_msgs/diagnostic_msgs:/home/pi/ros_catkin_ws/src/common_msgs/geometry_msgs:/home/pi/ros_catkin_ws/src/geometry/eigen_conversions:/home/pi/ros_catkin_ws/src/geometry/kdl_conversions:/home/pi/ros_catkin_ws/src/common_msgs/nav_msgs:/home/pi/ros_catkin_ws/src/ros_comm_msgs/rosgraph_msgs:/home/pi/ros_catkin_ws/src/ros_comm/rosmsg:/home/pi/ros_catkin_ws/src/common_msgs/shape_msgs:/home/pi/ros_catkin_ws/src/ros_comm_msgs/std_srvs:/home/pi/ros_catkin_ws/src/geometry2/tf2_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2:/home/pi/ros_catkin_ws/src/geometry2/tf2_bullet:/home/pi/ros_catkin_ws/src/geometry2/tf2_eigen:/home/pi/ros_catkin_ws/src/common_msgs/trajectory_msgs:/home/pi/ros_catkin_ws/src/control_msgs/control_msgs:/home/pi/ros_catkin_ws/src/unique_identifier/unique_identifier:/home/pi/ros_catkin_ws/src/urdf/urdf_parser_plugin:/home/pi/ros_catkin_ws/src/unique_identifier/uuid_msgs:/home/pi/ros_catkin_ws/src/geographic_info/geographic_msgs:/home/pi/ros_catkin_ws/src/common_msgs/visualization_msgs:/home/pi/ros_catkin_ws/src/ros_comm/xmlrpcpp:/home/pi/ros_catkin_ws/src/ros_comm/roscpp:/home/pi/ros_catkin_ws/src/bond_core/bondcpp:/home/pi/ros_catkin_ws/src/bond_core/bondpy:/home/pi/ros_catkin_ws/src/ros_comm/rosout:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_aggregator:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_updater:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_common_diagnostics:/home/pi/ros_catkin_ws/src/dynamic_reconfigure:/home/pi/ros_catkin_ws/src/ros_comm/message_filters:/home/pi/ros_catkin_ws/src/ros_comm/rosbag_storage:/home/pi/ros_catkin_ws/src/ros_comm/rosnode:/home/pi/ros_catkin_ws/src/ros_comm/rostopic:/home/pi/ros_catkin_ws/src/diagnostics/self_test:/home/pi/ros_catkin_ws/src/bond_core/test_bond:/home/pi/ros_catkin_ws/src/diagnostics/test_diagnostic_aggregator:/home/pi/ros_catkin_ws/src/geometry2/tf2_py:/home/pi/ros_catkin_ws/src/ros_comm/topic_tools:/home/pi/ros_catkin_ws/src/ros_comm/rosbag:/home/pi/ros_catkin_ws/src/actionlib/actionlib:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_analysis:/home/pi/ros_catkin_ws/src/realtime_tools:/home/pi/ros_catkin_ws/src/control_toolbox:/home/pi/ros_catkin_ws/src/ros_comm/roswtf:/home/pi/ros_catkin_ws/src/common_msgs/sensor_msgs:/home/pi/ros_catkin_ws/src/image_common/camera_calibration_parsers:/home/pi/ros_catkin_ws/src/vision_opencv/cv_bridge:/home/pi/ros_catkin_ws/src/image_common/image_transport:/home/pi/ros_catkin_ws/src/image_common/camera_info_manager:/home/pi/ros_catkin_ws/src/image_transport_plugins/compressed_image_transport:/home/pi/ros_catkin_ws/src/mavros/mavros_msgs:/home/pi/ros_catkin_ws/src/common_msgs/stereo_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_ros:/home/pi/ros_catkin_ws/src/mavros/mavros:/home/pi/ros_catkin_ws/src/geometry/tf:/home/pi/ros_catkin_ws/src/geometry2/tf2_geometry_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_kdl:/home/pi/ros_catkin_ws/src/geometry2/test_tf2:/home/pi/ros_catkin_ws/src/geometry2/tf2_sensor_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_tools:/home/pi/ros_catkin_ws/src/geometry/tf_conversions:/home/pi/ros_catkin_ws/src/unique_identifier/unique_id:/home/pi/ros_catkin_ws/src/geographic_info/geodesy:/home/pi/ros_catkin_ws/src/urdf/urdf:/home/pi/ros_catkin_ws/src/mavros/mavros_extras:/home/pi/ros_catkin_ws/src/mavros/test_mavros:/opt/ros/melodic/share
+++++ ROS_PACKAGE_PATH=/home/pi/ros_catkin_ws/src/catkin:/home/pi/ros_catkin_ws/src/genmsg:/home/pi/ros_catkin_ws/src/gencpp:/home/pi/ros_catkin_ws/src/geneus:/home/pi/ros_catkin_ws/src/genlisp:/home/pi/ros_catkin_ws/src/gennodejs:/home/pi/ros_catkin_ws/src/genpy:/home/pi/ros_catkin_ws/src/actionlib/actionlib_tools:/home/pi/ros_catkin_ws/src/bond_core/bond_core:/home/pi/ros_catkin_ws/src/cmake_modules:/home/pi/ros_catkin_ws/src/class_loader:/home/pi/ros_catkin_ws/src/common_msgs/common_msgs:/home/pi/ros_catkin_ws/src/roscpp_core/cpp_common:/home/pi/ros_catkin_ws/src/diagnostics/diagnostics:/home/pi/ros_catkin_ws/src/geographic_info/geographic_info:/home/pi/ros_catkin_ws/src/geometry/geometry:/home/pi/ros_catkin_ws/src/geometry2/geometry2:/home/pi/ros_catkin_ws/src/mavlink:/home/pi/ros_catkin_ws/src/message_generation:/home/pi/ros_catkin_ws/src/message_runtime:/home/pi/ros_catkin_ws/src/ros/mk:/home/pi/ros_catkin_ws/src/ros/ros:/home/pi/ros_catkin_ws/src/ros_comm/ros_comm:/home/pi/ros_catkin_ws/src/ros_environment:/home/pi/ros_catkin_ws/src/rosbag_migration_rule:/home/pi/ros_catkin_ws/src/ros/rosbash:/home/pi/ros_catkin_ws/src/ros/rosboost_cfg:/home/pi/ros_catkin_ws/src/ros/rosbuild:/home/pi/ros_catkin_ws/src/ros/rosclean:/home/pi/ros_catkin_ws/src/roscpp_core/roscpp_traits:/home/pi/ros_catkin_ws/src/ros/roscreate:/home/pi/ros_catkin_ws/src/diagnostics/rosdiagnostic:/home/pi/ros_catkin_ws/src/ros_comm/rosgraph:/home/pi/ros_catkin_ws/src/ros/roslang:/home/pi/ros_catkin_ws/src/roslisp:/home/pi/ros_catkin_ws/src/ros/rosmake:/home/pi/ros_catkin_ws/src/ros_comm/rosmaster:/home/pi/ros_catkin_ws/src/rospack:/home/pi/ros_catkin_ws/src/ros/roslib:/home/pi/ros_catkin_ws/src/ros_comm/rosparam:/home/pi/ros_catkin_ws/src/ros_comm/rospy:/home/pi/ros_catkin_ws/src/ros_comm/rosservice:/home/pi/ros_catkin_ws/src/roscpp_core/rostime:/home/pi/ros_catkin_ws/src/roscpp_core/roscpp_serialization:/home/pi/ros_catkin_ws/src/ros_comm/roslaunch:/home/pi/ros_catkin_ws/src/ros/rosunit:/home/pi/ros_catkin_ws/src/angles/angles:/home/pi/ros_catkin_ws/src/mavros/libmavconn:/home/pi/ros_catkin_ws/src/rosconsole:/home/pi/ros_catkin_ws/src/pluginlib:/home/pi/ros_catkin_ws/src/rosconsole_bridge:/home/pi/ros_catkin_ws/src/ros_comm/roslz4:/home/pi/ros_catkin_ws/src/ros_comm/rostest:/home/pi/ros_catkin_ws/src/bond_core/smclib:/home/pi/ros_catkin_ws/src/std_msgs:/home/pi/ros_catkin_ws/src/common_msgs/actionlib_msgs:/home/pi/ros_catkin_ws/src/bond_core/bond:/home/pi/ros_catkin_ws/src/common_msgs/diagnostic_msgs:/home/pi/ros_catkin_ws/src/common_msgs/geometry_msgs:/home/pi/ros_catkin_ws/src/geometry/eigen_conversions:/home/pi/ros_catkin_ws/src/geometry/kdl_conversions:/home/pi/ros_catkin_ws/src/common_msgs/nav_msgs:/home/pi/ros_catkin_ws/src/ros_comm_msgs/rosgraph_msgs:/home/pi/ros_catkin_ws/src/ros_comm/rosmsg:/home/pi/ros_catkin_ws/src/common_msgs/shape_msgs:/home/pi/ros_catkin_ws/src/ros_comm_msgs/std_srvs:/home/pi/ros_catkin_ws/src/geometry2/tf2_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2:/home/pi/ros_catkin_ws/src/geometry2/tf2_bullet:/home/pi/ros_catkin_ws/src/geometry2/tf2_eigen:/home/pi/ros_catkin_ws/src/common_msgs/trajectory_msgs:/home/pi/ros_catkin_ws/src/control_msgs/control_msgs:/home/pi/ros_catkin_ws/src/unique_identifier/unique_identifier:/home/pi/ros_catkin_ws/src/urdf/urdf_parser_plugin:/home/pi/ros_catkin_ws/src/unique_identifier/uuid_msgs:/home/pi/ros_catkin_ws/src/geographic_info/geographic_msgs:/home/pi/ros_catkin_ws/src/common_msgs/visualization_msgs:/home/pi/ros_catkin_ws/src/ros_comm/xmlrpcpp:/home/pi/ros_catkin_ws/src/ros_comm/roscpp:/home/pi/ros_catkin_ws/src/bond_core/bondcpp:/home/pi/ros_catkin_ws/src/bond_core/bondpy:/home/pi/ros_catkin_ws/src/ros_comm/rosout:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_aggregator:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_updater:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_common_diagnostics:/home/pi/ros_catkin_ws/src/dynamic_reconfigure:/home/pi/ros_catkin_ws/src/ros_comm/message_filters:/home/pi/ros_catkin_ws/src/ros_comm/rosbag_storage:/home/pi/ros_catkin_ws/src/ros_comm/rosnode:/home/pi/ros_catkin_ws/src/ros_comm/rostopic:/home/pi/ros_catkin_ws/src/diagnostics/self_test:/home/pi/ros_catkin_ws/src/bond_core/test_bond:/home/pi/ros_catkin_ws/src/diagnostics/test_diagnostic_aggregator:/home/pi/ros_catkin_ws/src/geometry2/tf2_py:/home/pi/ros_catkin_ws/src/ros_comm/topic_tools:/home/pi/ros_catkin_ws/src/ros_comm/rosbag:/home/pi/ros_catkin_ws/src/actionlib/actionlib:/home/pi/ros_catkin_ws/src/diagnostics/diagnostic_analysis:/home/pi/ros_catkin_ws/src/realtime_tools:/home/pi/ros_catkin_ws/src/control_toolbox:/home/pi/ros_catkin_ws/src/ros_comm/roswtf:/home/pi/ros_catkin_ws/src/common_msgs/sensor_msgs:/home/pi/ros_catkin_ws/src/image_common/camera_calibration_parsers:/home/pi/ros_catkin_ws/src/vision_opencv/cv_bridge:/home/pi/ros_catkin_ws/src/image_common/image_transport:/home/pi/ros_catkin_ws/src/image_common/camera_info_manager:/home/pi/ros_catkin_ws/src/image_transport_plugins/compressed_image_transport:/home/pi/ros_catkin_ws/src/mavros/mavros_msgs:/home/pi/ros_catkin_ws/src/common_msgs/stereo_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_ros:/home/pi/ros_catkin_ws/src/mavros/mavros:/home/pi/ros_catkin_ws/src/geometry/tf:/home/pi/ros_catkin_ws/src/geometry2/tf2_geometry_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_kdl:/home/pi/ros_catkin_ws/src/geometry2/test_tf2:/home/pi/ros_catkin_ws/src/geometry2/tf2_sensor_msgs:/home/pi/ros_catkin_ws/src/geometry2/tf2_tools:/home/pi/ros_catkin_ws/src/geometry/tf_conversions:/home/pi/ros_catkin_ws/src/unique_identifier/unique_id:/home/pi/ros_catkin_ws/src/geographic_info/geodesy:/home/pi/ros_catkin_ws/src/urdf/urdf:/home/pi/ros_catkin_ws/src/mavros/mavros_extras:/home/pi/ros_catkin_ws/src/mavros/test_mavros:/opt/ros/melodic/share
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=4
++++ '[' 4 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_4'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_python_version.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_4
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_4_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_4_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_python_version.sh
+++++ export ROS_PYTHON_VERSION=2
+++++ ROS_PYTHON_VERSION=2
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=5
++++ '[' 5 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_5'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_version.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_5
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_5_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_5_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/1.ros_version.sh
+++++ export ROS_VERSION=1
+++++ ROS_VERSION=1
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=6
++++ '[' 6 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_6'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosbuild.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_6
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_6_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_6_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosbuild.sh
+++++ export ROS_ROOT=/home/pi/ros_catkin_ws/src/ros/rosbuild
+++++ ROS_ROOT=/home/pi/ros_catkin_ws/src/ros/rosbuild
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=7
++++ '[' 7 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_7'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosconsole.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_7
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_7_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_7_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.rosconsole.sh
+++++ export ROSCONSOLE_CONFIG_FILE=/home/pi/ros_catkin_ws/src/rosconsole/config/rosconsole.config
+++++ ROSCONSOLE_CONFIG_FILE=/home/pi/ros_catkin_ws/src/rosconsole/config/rosconsole.config
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=8
++++ '[' 8 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_8'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.roslaunch.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_8
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_8_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_8_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/10.roslaunch.sh
+++++ '[' '!' http://172.26.207.182:11311/ ']'
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=9
++++ '[' 9 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_9'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/99.roslisp.sh
++++ unset _CATKIN_ENVIRONMENT_HOOKS_9
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_9_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_9_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/99.roslisp.sh
++++++ cat
+++++ PYTHON_CODE_BUILD_ROSLISP_PACKAGE_DIRECTORIES='from __future__ import print_function
+import os
+env_name = '\''CMAKE_PREFIX_PATH'\''
+paths = [path for path in os.environ[env_name].split(os.pathsep)] if env_name in os.environ and os.environ[env_name] != '\'''\'' else []
+workspaces = [path for path in paths if os.path.exists(os.path.join(path, '\''.catkin'\''))]
+paths = []
+for workspace in workspaces:
+    filename = os.path.join(workspace, '\''.catkin'\'')
+    data = '\'''\''
+    with open(filename) as f:
+        data = f.read()
+    if data:
+        paths.append(os.path.join(workspace, '\''share'\'', '\''common-lisp'\''))
+print(os.pathsep.join(paths))'
++++++ /usr/bin/python2 -c 'from __future__ import print_function
+import os
+env_name = '\''CMAKE_PREFIX_PATH'\''
+paths = [path for path in os.environ[env_name].split(os.pathsep)] if env_name in os.environ and os.environ[env_name] != '\'''\'' else []
+workspaces = [path for path in paths if os.path.exists(os.path.join(path, '\''.catkin'\''))]
+paths = []
+for workspace in workspaces:
+    filename = os.path.join(workspace, '\''.catkin'\'')
+    data = '\'''\''
+    with open(filename) as f:
+        data = f.read()
+    if data:
+        paths.append(os.path.join(workspace, '\''share'\'', '\''common-lisp'\''))
+print(os.pathsep.join(paths))'
+++++ export ROSLISP_PACKAGE_DIRECTORIES=/home/pi/ros_catkin_ws/devel/share/common-lisp
+++++ ROSLISP_PACKAGE_DIRECTORIES=/home/pi/ros_catkin_ws/devel/share/common-lisp
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=10
++++ '[' 10 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_10'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make.bash
++++ unset _CATKIN_ENVIRONMENT_HOOKS_10
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_10_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_10_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make.bash
+++++ complete -F _catkin_make catkin_make
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=11
++++ '[' 11 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_11'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make_isolated.bash
++++ unset _CATKIN_ENVIRONMENT_HOOKS_11
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_11_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_11_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/05.catkin_make_isolated.bash
+++++ complete -F _catkin_make_isolated catkin_make_isolated
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=12
++++ '[' 12 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_12'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/15.rosbash.bash
++++ unset _CATKIN_ENVIRONMENT_HOOKS_12
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_12_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_12_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/15.rosbash.bash
+++++ . /home/pi/ros_catkin_ws/src/ros/rosbash/rosbash
++++++ complete -F _roscomplete_sub_dir -o nospace roscd
++++++ complete -F _roscomplete_sub_dir -o nospace rospd
++++++ complete -F _roscomplete_sub_dir -o nospace rosls
++++++ complete -F _roscomplete_rosmake rosmake
++++++ complete -F _roscomplete_rosclean rosclean
++++++ complete -F _roscomplete_exe rosrun
++++++ complete -F _roscomplete_file rosed
++++++ complete -F _roscomplete_file roscp
++++++ complete -F _roscomplete_file roscat
++++++ complete -F _roscomplete_launch -o filenames roslaunch
++++++ complete -F _roscomplete_test -o filenames rostest
++++++ complete -F _roscomplete_rospack rospack
++++++ complete -F _roscomplete_rosbag -o default rosbag
++++++ complete -F _roscomplete_rosnode rosnode
++++++ complete -F _roscomplete_rosparam rosparam
++++++ complete -F _roscomplete_rostopic rostopic
++++++ complete -F _roscomplete_rosservice rosservice
++++++ complete -F _roscomplete_rosmsg rosmsg
++++++ complete -F _roscomplete_rossrv rossrv
++++++ complete -F _roscomplete_roscreate_pkg roscreate-pkg
++++++ complete -F _roscomplete_roswtf -o filenames roswtf
++++++ complete -F _roscomplete_rosconsole rosconsole
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=13
++++ '[' 13 -lt 14 ']'
++++ eval '_envfile=$_CATKIN_ENVIRONMENT_HOOKS_13'
+++++ _envfile=/home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/20.transform.bash
++++ unset _CATKIN_ENVIRONMENT_HOOKS_13
++++ eval '_envfile_workspace=$_CATKIN_ENVIRONMENT_HOOKS_13_WORKSPACE'
+++++ _envfile_workspace=/home/pi/ros_catkin_ws/devel
++++ unset _CATKIN_ENVIRONMENT_HOOKS_13_WORKSPACE
++++ CATKIN_ENV_HOOK_WORKSPACE=/home/pi/ros_catkin_ws/devel
++++ . /home/pi/ros_catkin_ws/devel/etc/catkin/profile.d/20.transform.bash
++++++ complete
++++++ grep -w rosrun
++++++ awk '{print $3}'
+++++ _sav_transform_roscomplete_rosrun=_roscomplete_exe
+++++ complete -F _roscomplete_rosrun_transform rosrun
++++ unset CATKIN_ENV_HOOK_WORKSPACE
++++ _i=14
++++ '[' 14 -lt 14 ']'
++++ unset _i
++++ unset _CATKIN_ENVIRONMENT_HOOKS_COUNT
++ roslaunch mavros px4.launch fcu_url:=serial:///dev/serial0:921600
+... logging to /home/pi/.ros/log/TX1/roslaunch-raspberrypi-1056.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/pi/ros_catkin_ws/src/mavros/mavros/launch/px4.launch
+[1mstarted roslaunch server http://172.26.208.105:42465/[0m
+
+SUMMARY
+========
+
+CLEAR PARAMETERS
+ * /mavros/
+
+PARAMETERS
+ * /mavros/cmd/use_comp_id_system_control: False
+ * /mavros/conn/heartbeat_rate: 1.0
+ * /mavros/conn/system_time_rate: 1.0
+ * /mavros/conn/timeout: 10.0
+ * /mavros/conn/timesync_rate: 10.0
+ * /mavros/distance_sensor/hrlv_ez4_pub/field_of_view: 0.0
+ * /mavros/distance_sensor/hrlv_ez4_pub/frame_id: hrlv_ez4_sonar
+ * /mavros/distance_sensor/hrlv_ez4_pub/id: 0
+ * /mavros/distance_sensor/hrlv_ez4_pub/orientation: PITCH_270
+ * /mavros/distance_sensor/hrlv_ez4_pub/send_tf: True
+ * /mavros/distance_sensor/hrlv_ez4_pub/sensor_position/x: 0.0
+ * /mavros/distance_sensor/hrlv_ez4_pub/sensor_position/y: 0.0
+ * /mavros/distance_sensor/hrlv_ez4_pub/sensor_position/z: -0.1
+ * /mavros/distance_sensor/laser_1_sub/id: 3
+ * /mavros/distance_sensor/laser_1_sub/orientation: PITCH_270
+ * /mavros/distance_sensor/laser_1_sub/subscriber: True
+ * /mavros/distance_sensor/lidarlite_pub/field_of_view: 0.0
+ * /mavros/distance_sensor/lidarlite_pub/frame_id: lidarlite_laser
+ * /mavros/distance_sensor/lidarlite_pub/id: 1
+ * /mavros/distance_sensor/lidarlite_pub/orientation: PITCH_270
+ * /mavros/distance_sensor/lidarlite_pub/send_tf: True
+ * /mavros/distance_sensor/lidarlite_pub/sensor_position/x: 0.0
+ * /mavros/distance_sensor/lidarlite_pub/sensor_position/y: 0.0
+ * /mavros/distance_sensor/lidarlite_pub/sensor_position/z: -0.1
+ * /mavros/distance_sensor/sonar_1_sub/id: 2
+ * /mavros/distance_sensor/sonar_1_sub/orientation: PITCH_270
+ * /mavros/distance_sensor/sonar_1_sub/subscriber: True
+ * /mavros/fake_gps/eph: 2.0
+ * /mavros/fake_gps/epv: 2.0
+ * /mavros/fake_gps/fix_type: 3
+ * /mavros/fake_gps/geo_origin/alt: 408.0
+ * /mavros/fake_gps/geo_origin/lat: 47.3667
+ * /mavros/fake_gps/geo_origin/lon: 8.55
+ * /mavros/fake_gps/gps_rate: 5.0
+ * /mavros/fake_gps/mocap_transform: True
+ * /mavros/fake_gps/satellites_visible: 5
+ * /mavros/fake_gps/tf/child_frame_id: fix
+ * /mavros/fake_gps/tf/frame_id: map
+ * /mavros/fake_gps/tf/listen: False
+ * /mavros/fake_gps/tf/rate_limit: 10.0
+ * /mavros/fake_gps/tf/send: False
+ * /mavros/fake_gps/use_mocap: True
+ * /mavros/fake_gps/use_vision: False
+ * /mavros/fcu_protocol: v2.0
+ * /mavros/fcu_url: serial:///dev/ser...
+ * /mavros/gcs_url: 
+ * /mavros/global_position/child_frame_id: base_link
+ * /mavros/global_position/frame_id: map
+ * /mavros/global_position/gps_uere: 1.0
+ * /mavros/global_position/rot_covariance: 99999.0
+ * /mavros/global_position/tf/child_frame_id: base_link
+ * /mavros/global_position/tf/frame_id: map
+ * /mavros/global_position/tf/global_frame_id: earth
+ * /mavros/global_position/tf/send: False
+ * /mavros/global_position/use_relative_alt: True
+ * /mavros/image/frame_id: px4flow
+ * /mavros/imu/angular_velocity_stdev: 0.0003490659 // 0...
+ * /mavros/imu/frame_id: base_link
+ * /mavros/imu/linear_acceleration_stdev: 0.0003
+ * /mavros/imu/magnetic_stdev: 0.0
+ * /mavros/imu/orientation_stdev: 1.0
+ * /mavros/landing_target/camera/fov_x: 2.0071286398
+ * /mavros/landing_target/camera/fov_y: 2.0071286398
+ * /mavros/landing_target/image/height: 480
+ * /mavros/landing_target/image/width: 640
+ * /mavros/landing_target/land_target_type: VISION_FIDUCIAL
+ * /mavros/landing_target/listen_lt: False
+ * /mavros/landing_target/mav_frame: LOCAL_NED
+ * /mavros/landing_target/target_size/x: 0.3
+ * /mavros/landing_target/target_size/y: 0.3
+ * /mavros/landing_target/tf/child_frame_id: camera_center
+ * /mavros/landing_target/tf/frame_id: landing_target
+ * /mavros/landing_target/tf/listen: False
+ * /mavros/landing_target/tf/rate_limit: 10.0
+ * /mavros/landing_target/tf/send: True
+ * /mavros/local_position/frame_id: map
+ * /mavros/local_position/tf/child_frame_id: base_link
+ * /mavros/local_position/tf/frame_id: map
+ * /mavros/local_position/tf/send: Fa[0m[ INFO] [1619463119.429189887]: FCU URL: serial:///dev/serial0:921600[0m
+[0m[ INFO] [1619463119.606046750]: serial0: device: /dev/serial0 @ 921600 bps[0m
+[0m[ INFO] [1619463119.608732167]: GCS bridge disabled[0m
+[0m[ INFO] [1619463120.345037951]: Plugin 3dr_radio loaded[0m
+[0m[ INFO] [1619463120.609951473]: Plugin 3dr_radio initialized[0m
+[0m[ INFO] [1619463120.611369403]: Plugin actuator_control loaded[0m
+[0m[ INFO] [1619463121.126106863]: Plugin actuator_control initialized[0m
+[0m[ INFO] [1619463121.454217543]: Plugin adsb loaded[0m
+[0m[ INFO] [1619463121.805242929]: Plugin adsb initialized[0m
+[0m[ INFO] [1619463121.807355889]: Plugin altitude loaded[0m
+[0m[ INFO] [1619463121.915517189]: Plugin altitude initialized[0m
+[0m[ INFO] [1619463121.917210227]: Plugin cam_imu_sync loaded[0m
+[0m[ INFO] [1619463121.931738891]: Plugin cam_imu_sync initialized[0m
+[0m[ INFO] [1619463121.933950090]: Plugin command loaded[0m
+[0m[ INFO] [1619463122.212505212]: Plugin command initialized[0m
+[0m[ INFO] [1619463122.214073677]: Plugin companion_process_status loaded[0m
+[0m[ INFO] [1619463122.274044591]: Plugin companion_process_status initialized[0m
+[0m[ INFO] [1619463122.275462280]: Plugin debug_value loaded[0m
+[0m[ INFO] [1619463122.384271055]: Plugin debug_value initialized[0m
+[0m[ INFO] [1619463122.384770569]: Plugin distance_sensor blacklisted[0m
+[0m[ INFO] [1619463122.386660994]: Plugin esc_status loaded[0m
+[0m[ INFO] [1619463122.417409877]: Plugin esc_status initialized[0m
+[0m[ INFO] [1619463122.419646688]: Plugin fake_gps loaded[0m
+[0m[ INFO] [1619463122.810843601]: Plugin fake_gps initialized[0m
+[0m[ INFO] [1619463122.812995319]: Plugin ftp loaded[0m
+[0m[ INFO] [1619463122.989474891]: Plugin ftp initialized[0m
+[0m[ INFO] [1619463122.991797589]: Plugin geofence loaded[0m
+[0m[ INFO] [1619463123.060647114]: Plugin geofence initialized[0m
+[0m[ INFO] [1619463123.062844036]: Plugin global_position loaded[0m
+[0m[ INFO] [1619463123.377061195]: Plugin global_position initialized[0m
+[0m[ INFO] [1619463123.378759825]: Plugin gps_rtk loaded[0m
+[0m[ INFO] [1619463123.531990362]: Plugin gps_rtk initialized[0m
+[0m[ INFO] [1619463123.533959137]: Plugin gps_status loaded[0m
+[0m[ INFO] [1619463123.586490591]: Plugin gps_status initialized[0m
+[0m[ INFO] [1619463123.589035120]: Plugin hil loaded[0m
+[0m[ INFO] [1619463123.878798941]: Plugin hil initialized[0m
+[0m[ INFO] [1619463123.882075685]: Plugin home_position loaded[0m
+[0m[ INFO] [1619463123.955128351]: Plugin home_position initialized[0m
+[0m[ INFO] [1619463123.957747601]: Plugin imu loaded[0m
+[0m[ INFO] [1619463124.098909838]: Plugin imu initialized[0m
+[0m[ INFO] [1619463124.101216739]: Plugin landing_target loaded[0m
+[0m[ INFO] [1619463124.695874446]: Plugin landing_target initialized[0m
+[0m[ INFO] [1619463124.697740279]: Plugin local_position loaded[0m
+[0m[ INFO] [1619463124.847647239]: Plugin local_position initialized[0m
+[0m[ INFO] [1619463124.849182982]: Plugin log_transfer loaded[0m
+[0m[ INFO] [1619463124.905265288]: Plugin log_transfer initialized[0m
+[0m[ INFO] [1619463124.907127861]: Plugin manual_control loaded[0m
+[0m[ INFO] [1619463124.962532859]: Plugin manual_control initialized[0m
+[0m[ INFO] [1619463124.964277212]: Plugin mocap_pose_estimate loaded[0m
+[0m[ INFO] [1619463125.025720295]: Plugin mocap_pose_estimate initialized[0m
+[0m[ INFO] [1619463125.027373945]: Plugin mount_control loaded[0m
+[0m[ INFO] [1619463125.078855113]: Plugin mount_control initialized[0m
+[0m[ INFO] [1619463125.080418597]: Plugin obstacle_distance loaded[0m
+[0m[ INFO] [1619463125.129577123]: Plugin obstacle_distance initialized[0m
+[0m[ INFO] [1619463125.131038441]: Plugin odom loaded[0m
+[0m[ INFO] [1619463125.216434572]: Plugin odom initialized[0m
+[0m[ INFO] [1619463125.217958464]: Plugin onboard_computer_status loaded[0m
+[0m[ INFO] [1619463125.272778357]: Plugin onboard_computer_status initialized[0m
+[0m[ INFO] [1619463125.274853354]: Plugin param loaded[0m
+[0m[ INFO] [1619463125.332600902[33m[ WARN] [1619463127.717105232]: GP: No GPS fix[0m
+]: Plugin param initialized[0m
+[0m[ INFO] [1619463125.334799249]: Plugin play_tune loaded[0m
+[0m[ INFO] [1619463125.384197717]: Plugin play_tune initialized[0m
+[0m[ INFO] [1619463125.385846348]: Plugin px4flow loaded[0m
+[0m[ INFO] [1619463125.560324164]: Plugin px4flow initialized[0m
+[0m[ INFO] [1619463125.562756435]: Plugin rallypoint loaded[0m
+[0m[ INFO] [1619463125.618834927]: Plugin rallypoint initialized[0m
+[0m[ INFO] [1619463125.619732954]: Plugin rangefinder blacklisted[0m
+[0m[ INFO] [1619463125.621911524]: Plugin rc_io loaded[0m
+[0m[ INFO] [1619463125.691228156]: Plugin rc_io initialized[0m
+[0m[ INFO] [1619463125.691805538]: Plugin safety_area blacklisted[0m
+[0m[ INFO] [1619463125.694262180]: Plugin setpoint_accel loaded[0m
+[0m[ INFO] [1619463125.772064315]: Plugin setpoint_accel initialized[0m
+[0m[ INFO] [1619463125.774735899]: Plugin setpoint_attitude loaded[0m
+[0m[ INFO] [1619463126.001272155]: Plugin setpoint_attitude initialized[0m
+[0m[ INFO] [1619463126.004023275]: Plugin setpoint_position loaded[0m
+[0m[ INFO] [1619463126.397774275]: Plugin setpoint_position initialized[0m
+[0m[ INFO] [1619463126.399962419]: Plugin setpoint_raw loaded[0m
+[0m[ INFO] [1619463126.600875387]: Plugin setpoint_raw initialized[0m
+[0m[ INFO] [1619463126.603137530]: Plugin setpoint_trajectory loaded[0m
+[0m[ INFO] [1619463126.676577804]: Plugin setpoint_trajectory initialized[0m
+[0m[ INFO] [1619463126.678674856]: Plugin setpoint_velocity loaded[0m
+[0m[ INFO] [1619463126.771198061]: Plugin setpoint_velocity initialized[0m
+[0m[ INFO] [1619463126.773909681]: Plugin sys_status loaded[0m
+[0m[ INFO] [1619463126.998658327]: Plugin sys_status initialized[0m
+[0m[ INFO] [1619463127.000956507]: Plugin sys_time loaded[0m
+[0m[ INFO] [1619463127.136541450]: TM: Timesync mode: MAVLINK[0m
+[0m[ INFO] [1619463127.162703030]: Plugin sys_time initialized[0m
+[0m[ INFO] [1619463127.164955228]: Plugin trajectory loaded[0m
+[0m[ INFO] [1619463127.286467243]: Plugin trajectory initialized[0m
+[0m[ INFO] [1619463127.289403769]: Plugin vfr_hud loaded[0m
+[0m[ INFO] [1619463127.304929126]: Plugin vfr_hud initialized[0m
+[0m[ INFO] [1619463127.305452361]: Plugin vibration blacklisted[0m
+[0m[ INFO] [1619463127.307590191]: Plugin vision_pose_estimate loaded[0m
+[0m[ INFO] [1619463127.472554569]: Plugin vision_pose_estimate initialized[0m
+[0m[ INFO] [1619463127.474491827]: Plugin vision_speed_estimate loaded[0m
+[0m[ INFO] [1619463127.533961598]: Plugin vision_speed_estimate initialized[0m
+[0m[ INFO] [1619463127.536123890]: Plugin waypoint loaded[0m
+[0m[ INFO] [1619463127.605739000]: Plugin waypoint initialized[0m
+[0m[ INFO] [1619463127.606331531]: Plugin wheel_odometry blacklisted[0m
+[0m[ INFO] [1619463127.608282159]: Plugin wind_estimation loaded[0m
+[0m[ INFO] [1619463127.619772428]: Plugin wind_estimation initialized[0m
+[0m[ INFO] [1619463127.620359885]: Autostarting mavlink via USB on PX4[0m
+[0m[ INFO] [1619463127.621451207]: Built-in SIMD instructions: None[0m
+[0m[ INFO] [1619463127.622006090]: Built-in MAVLink package version: 2021.4.5[0m
+[0m[ INFO] [1619463127.622516511]: Known MAVLink dialects: common ardupilotmega ASLUAV all autoquad development icarous matrixpilot paparazzi standard uAvionix ualberta[0m
+[0m[ INFO] [1619463127.623061431]: MAVROS started. MY ID 1.240, TARGET ID 1.1[0m
+[0m[ INFO] [1619463127.626673857]: CON: Got HEARTBEAT, connected. FCU: PX4 Autopilot[0m
+[0m[ INFO] [1619463127.656691989]: IMU: High resolution IMU detected![0m
+[0m[ INFO] [1619463127.665063254]: IMU: Attitude quaternion IMU detected![0m
+[0m[ INFO] [1619463128.705937680]: GF: Using MISSION_ITEM_INT[0m
+[0m[ INFO] [1619463128.706408638]: RP: Using MISSION_ITEM_INT[0m
+[0m[ INFO] [1619463128.706735690]: WP: Using MISSION_ITEM_INT[0m
+[0m[ INFO] [1619463128.707037521]: VER: 1.1: Capabilities         0x000000000000e4ef[0m
+[0m[ INFO] [1619463128.707580237]: VER: 1.1: Flight software:     010b03ff (a6274bc5ed000000)[0m
+[0m[ INFO] [1619463128.707893049]: VER: 1.1: Middleware software: [33m[ WARN] [1619463128.716320813]: CMD: Unexpected command 520, result 0[0m
+[33m[ WARN] [1619463143.630495713]: GF: timeout, retries left 2[0m
+[33m[ WARN] [1619463143.638228892]: RP: timeout, retries left 2[0m
+[33m[ WARN] [1619463143.645639019]: WP: timeout, retries left 2[0m
+[33m[ WARN] [1619463144.631991441]: GF: timeout, retries left 1[0m
+[33m[ WARN] [1619463144.640370169]: RP: timeout, retries left 1[0m
+[33m[ WARN] [1619463144.646565920]: WP: timeout, retries left 1[0m
+[33m[ WARN] [1619463145.632952842]: GF: timeout, retries left 0[0m
+[33m[ WARN] [1619463145.641455291]: RP: timeout, retries left 0[0m
+[33m[ WARN] [1619463145.647735115]: WP: timeout, retries left 0[0m
+[31m[ERROR] [1619463146.633990392]: GF: timed out.[0m
+[31m[ERROR] [1619463146.642490878]: RP: timed out.[0m
+[31m[ERROR] [1619463146.648697628]: WP: timed out.[0m
+[33m[ WARN] [1619463157.909107783]: GP: No GPS fix[0m
+lse
+ * /mavros/local_position/tf/send_fcu: False
+ * /mavros/mission/pull_after_gcs: True
+ * /mavros/mission/use_mission_item_int: True
+ * /mavros/mocap/use_pose: True
+ * /mavros/mocap/use_tf: False
+ * /mavros/odometry/fcu/odom_child_id_des: base_link
+ * /mavros/odometry/fcu/odom_parent_id_des: map
+ * /mavros/plugin_blacklist: ['safety_area', '...
+ * /mavros/plugin_whitelist: []
+ * /mavros/px4flow/frame_id: px4flow
+ * /mavros/px4flow/ranger_fov: 0.118682
+ * /mavros/px4flow/ranger_max_range: 5.0
+ * /mavros/px4flow/ranger_min_range: 0.3
+ * /mavros/safety_area/p1/x: 1.0
+ * /mavros/safety_area/p1/y: 1.0
+ * /mavros/safety_area/p1/z: 1.0
+ * /mavros/safety_area/p2/x: -1.0
+ * /mavros/safety_area/p2/y: -1.0
+ * /mavros/safety_area/p2/z: -1.0
+ * /mavros/setpoint_accel/send_force: False
+ * /mavros/setpoint_attitude/reverse_thrust: False
+ * /mavros/setpoint_attitude/tf/child_frame_id: target_attitude
+ * /mavros/setpoint_attitude/tf/frame_id: map
+ * /mavros/setpoint_attitude/tf/listen: False
+ * /mavros/setpoint_attitude/tf/rate_limit: 50.0
+ * /mavros/setpoint_attitude/use_quaternion: False
+ * /mavros/setpoint_position/mav_frame: LOCAL_NED
+ * /mavros/setpoint_position/tf/child_frame_id: target_position
+ * /mavros/setpoint_position/tf/frame_id: map
+ * /mavros/setpoint_position/tf/listen: False
+ * /mavros/setpoint_position/tf/rate_limit: 50.0
+ * /mavros/setpoint_raw/thrust_scaling: 1.0
+ * /mavros/setpoint_velocity/mav_frame: LOCAL_NED
+ * /mavros/startup_px4_usb_quirk: True
+ * /mavros/sys/disable_diag: False
+ * /mavros/sys/min_voltage: 10.0
+ * /mavros/target_component_id: 1
+ * /mavros/target_system_id: 1
+ * /mavros/tdr_radio/low_rssi: 40
+ * /mavros/time/time_ref_source: fcu
+ * /mavros/time/timesync_avg_alpha: 0.6
+ * /mavros/time/timesync_mode: MAVLINK
+ * /mavros/vibration/frame_id: base_link
+ * /mavros/vision_pose/tf/child_frame_id: vision_estimate
+ * /mavros/vision_pose/tf/frame_id: odom
+ * /mavros/vision_pose/tf/listen: False
+ * /mavros/vision_pose/tf/rate_limit: 10.0
+ * /mavros/vision_speed/listen_twist: True
+ * /mavros/vision_speed/twist_cov: True
+ * /mavros/wheel_odometry/child_frame_id: base_link
+ * /mavros/wheel_odometry/count: 2
+ * /mavros/wheel_odometry/frame_id: odom
+ * /mavros/wheel_odometry/send_raw: True
+ * /mavros/wheel_odometry/send_twist: False
+ * /mavros/wheel_odometry/tf/child_frame_id: base_link
+ * /mavros/wheel_odometry/tf/frame_id: odom
+ * /mavros/wheel_odometry/tf/send: False
+ * /mavros/wheel_odometry/use_rpm: False
+ * /mavros/wheel_odometry/vel_error: 0.1
+ * /mavros/wheel_odometry/wheel0/radius: 0.05
+ * /mavros/wheel_odometry/wheel0/x: 0.0
+ * /mavros/wheel_odometry/wheel0/y: -0.15
+ * /mavros/wheel_odometry/wheel1/radius: 0.05
+ * /mavros/wheel_odometry/wheel1/x: 0.0
+ * /mavros/wheel_odometry/wheel1/y: 0.15
+ * /rosdistro: melodic
+ * /rosversion: 1.14.10
+
+NODES
+  /
+    mavros (mavros/mavros_node)
+
+[1mROS_MASTER_URI=http://172.26.207.182:11311/[0m
+]2;/home/pi/ros_catkin_ws/src/mavros/mavros/launch/px4.launch http://172.26.207.182:11311/
+[1mprocess[mavros-1]: started with pid [1065][0m
+[mavros-1] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
