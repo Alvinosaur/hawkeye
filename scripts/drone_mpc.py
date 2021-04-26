@@ -68,7 +68,8 @@ class DroneMPC(object):
         xs = self.A_bar @ x0 + self.B_bar @ U
         return xs.reshape(self.N + 1, self.FLAT_STATES)
 
-    def state_cost(self, xt, xt_target, target_pixel, phi):
+    @staticmethod
+    def state_cost(xt, xt_target, target_pixel):
         """
         target_pixel is the 3D coordinate of a pixel in the drone's frame. Needs to be
         transformed into world frame
@@ -81,6 +82,12 @@ class DroneMPC(object):
         # theta = math.asin(-vel[2])  # pitch
         # phi = 0  # cannot be determined from velocity
         # (R @ X + T) - T
+
+        # TODO: convert all to float16
+        # try https://cupy.dev/
+        # try https://scikit-cuda.readthedocs.io/en/latest/
+        # try cython
+        # convert python to c+
         vec_target = Rotation.from_euler('ZYX', [yaw, 0, 0]).as_matrix() @ target_pixel
         vec_target /= np.linalg.norm(vec_target)
         vec_cur = xt_target - xt[:3]
@@ -101,7 +108,7 @@ class DroneMPC(object):
         X = self.prediction(U, t, x0)
         control_cost = U.T @ self.R_bar @ U
         # TODO: Double-check indexing! Does X[i] match with target_traj[i]?
-        viewpoint_cost = sum([self.state_cost(X[i], target_traj[i], target_pixel, phi0)
+        viewpoint_cost = sum([self.state_cost(X[i], target_traj[i], target_pixel)
                               for i in range(self.N)])
         return 0.01 * control_cost + 10 * viewpoint_cost
         # constraintpenalty = sum(umag[umag > 2])

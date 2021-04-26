@@ -6,31 +6,15 @@ from geometry_msgs.msg import PoseStamped, TwistStamped, Vector3
 from nav_msgs.msg import Path
 from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float32, Float64, String, Header
-# import tf_conversions
-# import tf2_ros
 
 import time
 from pyquaternion import Quaternion
 from scipy.spatial.transform import Rotation
 import math
 import numpy as np
-import threading
-from simple_pid import PID
 
 from drone_mpc import DroneMPC
 import utils
-
-# Enums: https://mavlink.io/en/messages/common.html#MAV_FRAME
-# SET_POSITION_TARGET_LOCAL_NED: https://mavlink.io/en/messages/common.html#SET_POSITION_TARGET_LOCAL_NED
-# Sets a desired vehicle position in a local north-east-down coordinate frame
-MAV_FRAME_LOCAL_NED = 1  # local x(North), y(East), z(Down)
-MAV_FRAME_LOCAL_OFFSET_NED = 7  # local offset (dx, dy, dz) in NED frame
-MAV_FRAME_BODY_NED = 8  # local target point in NED x(North), y(East), z(Down)
-MAV_FRAME_BODY_OFFSET_NED = 9  # local offset in NED
-
-# SET_ATTITUDE_TARGET: https://mavlink.io/en/messages/common.html#SET_ATTITUDE_TARGET
-# only option is local
-MAV_FRAME_LOCAL_ATT = None
 
 
 class Px4Controller:
@@ -97,27 +81,27 @@ class Px4Controller:
         self.flightModeService = rospy.ServiceProxy('/mavros/set_mode', SetMode)
 
         # Drone camera parameters
-        camera_info = utils.read_camera_info()
-        P = np.array(camera_info.P).reshape(3, 4)
-        K = np.array(camera_info.K).reshape(3, 3)
-        invP = np.linalg.pinv(P)  # pseudo inverse
-        invK = np.linalg.inv(K)
-        # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
-        Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
-
-        # we want target to lie in center of image
-        target_pix_x = camera_info.width / 2
-        target_pix_y = camera_info.height / 2
-        target_pixel = np.array([target_pix_x + camera_info.width / 2,
-                                 target_pix_y + camera_info.height / 2,
-                                 1])
-        pixel_cam = invK @ target_pixel  # pixel position in camera frame
-        pixel_cam = np.array([[0, 0, 1],
-                              [-1, 0, 0],
-                              [0, -1, 0]]) @ pixel_cam
-
-        # transform from camera frame to drone frame
-        self.pixel_drone = Rdc @ pixel_cam
+        # camera_info = utils.read_camera_info()
+        # P = np.array(camera_info.P).reshape(3, 4)
+        # K = np.array(camera_info.K).reshape(3, 3)
+        # invP = np.linalg.pinv(P)  # pseudo inverse
+        # invK = np.linalg.inv(K)
+        # # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
+        # Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
+        # 
+        # # we want target to lie in center of image
+        # target_pix_x = camera_info.width / 2
+        # target_pix_y = camera_info.height / 2
+        # target_pixel = np.array([target_pix_x + camera_info.width / 2,
+        #                          target_pix_y + camera_info.height / 2,
+        #                          1])
+        # pixel_cam = invK @ target_pixel  # pixel position in camera frame
+        # pixel_cam = np.array([[0, 0, 1],
+        #                       [-1, 0, 0],
+        #                       [0, -1, 0]]) @ pixel_cam
+        # 
+        # # transform from camera frame to drone frame
+        # self.pixel_drone = Rdc @ pixel_cam
 
     def check_connection(self):
         for i in range(10):
@@ -307,12 +291,12 @@ class Px4Controller:
 
         while self.arm_state and self.offboard_state and not rospy.is_shutdown():
             att.header.stamp = rospy.Time.now()
-            desired_pos = self.construct_target(x=0, y=0, z=8, q=q)
+            desired_pos = self.construct_target(x=0, y=0, z=self.takeoff_height, q=q)
             self.pos_control_pub.publish(desired_pos)
             print(self.local_pose.pose.position.z)
-            if np.isclose(self.local_pose.pose.position.z, 8, atol=1e-2):
-                if self.target_path is not None:
-                    self.generate_action()
+            # if np.isclose(self.local_pose.pose.position.z, self.takeoff_height, atol=1e-2):
+            #     if self.target_path is not None:
+            #         self.generate_action()
             if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):
                 if self.disarm():
                     self.state = "DISARMED"
