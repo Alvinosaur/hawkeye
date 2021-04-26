@@ -1,0 +1,135 @@
+Random Token: 143
+FCU URL: serial:///dev/serial0:921600
+serial0: device: /dev/serial0 @ 921600 bps
+GCS bridge disabled
+Plugin 3dr_radio loaded
+Plugin 3dr_radio initialized
+Plugin actuator_control loaded
+Plugin actuator_control initialized
+Plugin adsb loaded
+Plugin adsb initialized
+Plugin altitude loaded
+Plugin altitude initialized
+Plugin cam_imu_sync loaded
+Plugin cam_imu_sync initialized
+Plugin command loaded
+Plugin command initialized
+Plugin companion_process_status loaded
+Plugin companion_process_status initialized
+Plugin debug_value loaded
+Plugin debug_value initialized
+Plugin distance_sensor blacklisted
+Plugin esc_status loaded
+Plugin esc_status initialized
+Plugin fake_gps loaded
+Plugin fake_gps initialized
+Plugin ftp loaded
+Plugin ftp initialized
+Plugin geofence loaded
+Plugin geofence initialized
+Plugin global_position loaded
+Plugin global_position initialized
+Plugin gps_rtk loaded
+Plugin gps_rtk initialized
+Plugin gps_status loaded
+Plugin gps_status initialized
+Plugin hil loaded
+Plugin hil initialized
+Plugin home_position loaded
+Plugin home_position initialized
+Plugin imu loaded
+Plugin imu initialized
+Plugin landing_target loaded
+Plugin landing_target initialized
+Plugin local_position loaded
+Plugin local_position initialized
+Plugin log_transfer loaded
+Plugin log_transfer initialized
+Plugin manual_control loaded
+Plugin manual_control initialized
+Plugin mocap_pose_estimate loaded
+Plugin mocap_pose_estimate initialized
+Plugin mount_control loaded
+Plugin mount_control initialized
+Plugin obstacle_distance loaded
+Plugin obstacle_distance initialized
+Plugin odom loaded
+Plugin odom initialized
+Plugin onboard_computer_status loaded
+Plugin onboard_computer_status initialized
+Plugin param loaded
+Plugin param initialized
+Plugin play_tune loaded
+Plugin play_tune initialized
+Plugin px4flow loaded
+Plugin px4flow initialized
+Plugin rallypoint loaded
+Plugin rallypoint initialized
+Plugin rangefinder blacklisted
+Plugin rc_io loaded
+Plugin rc_io initialized
+Plugin safety_area blacklisted
+Plugin setpoint_accel loaded
+Plugin setpoint_accel initialized
+Plugin setpoint_attitude loaded
+Plugin setpoint_attitude initialized
+Plugin setpoint_position loaded
+Plugin setpoint_position initialized
+Plugin setpoint_raw loaded
+Plugin setpoint_raw initialized
+Plugin setpoint_trajectory loaded
+Plugin setpoint_trajectory initialized
+Plugin setpoint_velocity loaded
+Plugin setpoint_velocity initialized
+Plugin sys_status loaded
+Plugin sys_status initialized
+Plugin sys_time loaded
+TM: Timesync mode: MAVLINK
+Plugin sys_time initialized
+Plugin trajectory loaded
+Plugin trajectory initialized
+Plugin vfr_hud loaded
+Plugin vfr_hud initialized
+Plugin vibration blacklisted
+Plugin vision_pose_estimate loaded
+Plugin vision_pose_estimate initialized
+Plugin vision_speed_estimate loaded
+Plugin vision_speed_estimate initialized
+Plugin waypoint loaded
+Plugin waypoint initialized
+Plugin wheel_odometry blacklisted
+Plugin wind_estimation loaded
+Plugin wind_estimation initialized
+Autostarting mavlink via USB on PX4
+Built-in SIMD instructions: None
+Built-in MAVLink package version: 2021.4.5
+Known MAVLink dialects: common ardupilotmega ASLUAV all autoquad development icarous matrixpilot paparazzi standard uAvionix ualberta
+MAVROS started. MY ID 1.240, TARGET ID 1.1
+IMU: High resolution IMU detected!
+IMU: Attitude quaternion IMU detected!
+CON: Got HEARTBEAT, connected. FCU: PX4 Autopilot
+IMU: High resolution IMU detected!
+IMU: Attitude quaternion IMU detected!
+GF: Using MISSION_ITEM_INT
+RP: Using MISSION_ITEM_INT
+WP: Using MISSION_ITEM_INT
+VER: 1.1: Capabilities         0x000000000000e4ef
+VER: 1.1: Flight software:     010b03ff (a6274bc5ed000000)
+VER: 1.1: Middleware software: 010b03ff (a6274bc5ed000000)
+VER: 1.1: OS software:         080200ff (ec20f2e6c5cc35b2)
+VER: 1.1: Board hardware:      00000011
+VER: 1.1: VID/PID:             26ac:0011
+VER: 1.1: UID:                 3034510736353832
+CMD: Unexpected command 520, result 0
+GF: timeout, retries left 2
+RP: timeout, retries left 2
+WP: timeout, retries left 2
+GF: timeout, retries left 1
+RP: timeout, retries left 1
+WP: timeout, retries left 1
+GF: timeout, retries left 0
+RP: timeout, retries left 0
+WP: timeout, retries left 0
+GF: timed out.
+RP: timed out.
+WP: timed out.
