@@ -1,4 +1,3 @@
-Random Token: 143
 FCU URL: serial:///dev/serial0:921600
 serial0: device: /dev/serial0 @ 921600 bps
 GCS bridge disabled
@@ -105,31 +104,3 @@ Built-in SIMD instructions: None
 Built-in MAVLink package version: 2021.4.5
 Known MAVLink dialects: common ardupilotmega ASLUAV all autoquad development icarous matrixpilot paparazzi standard uAvionix ualberta
 MAVROS started. MY ID 1.240, TARGET ID 1.1
-IMU: High resolution IMU detected!
-IMU: Attitude quaternion IMU detected!
-CON: Got HEARTBEAT, connected. FCU: PX4 Autopilot
-IMU: High resolution IMU detected!
-IMU: Attitude quaternion IMU detected!
-GF: Using MISSION_ITEM_INT
-RP: Using MISSION_ITEM_INT
-WP: Using MISSION_ITEM_INT
-VER: 1.1: Capabilities         0x000000000000e4ef
-VER: 1.1: Flight software:     010b03ff (a6274bc5ed000000)
-VER: 1.1: Middleware software: 010b03ff (a6274bc5ed000000)
-VER: 1.1: OS software:         080200ff (ec20f2e6c5cc35b2)
-VER: 1.1: Board hardware:      00000011
-VER: 1.1: VID/PID:             26ac:0011
-VER: 1.1: UID:                 3034510736353832
-CMD: Unexpected command 520, result 0
-GF: timeout, retries left 2
-RP: timeout, retries left 2
-WP: timeout, retries left 2
-GF: timeout, retries left 1
-RP: timeout, retries left 1
-WP: timeout, retries left 1
-GF: timeout, retries left 0
-RP: timeout, retries left 0
-WP: timeout, retries left 0
-GF: timed out.
-RP: timed out.
-WP: timed out.

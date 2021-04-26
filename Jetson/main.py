@@ -19,7 +19,7 @@ f = open("/home/siddesh/hawkeye/Jetson/px4_log.txt", "w", buffering=0)
 # Launch Roscore
 parent = ROSLaunchParent("TX1", [], is_core = True)
 parent.start()
-print("\n--------------------------------------\n\n")
+print("\n--------------------------------------\n")
 bridge = CvBridge()
 
 
@@ -42,6 +42,18 @@ def receive_status_msg(data):
     f.write(data.msg + "\n")
 
 
+# Receives acknowlgement from Raspberry Pi
+def receive_ack(s):
+    if (s.data == "ACK"):
+        print("\nReceived acknowledgement from Rpi")
+        sys.stdout.write(">> ")
+    else:
+        print("\nRpi terminated with error")
+        print("Error message: %s" % s.data)
+        sys.stdout.write(">> ")
+    sys.stdout.flush()
+
+
 # Cleanly exit program
 def shutdown_program():
     cv2.destroyAllWindows()
@@ -62,12 +74,18 @@ if __name__== '__main__':
         rospy.on_shutdown(shutdown_program)
         sb = rospy.Subscriber('image', Image, receive_frame, queue_size = 10)
         sb2 = rospy.Subscriber('rosout', Log, receive_status_msg, queue_size = 10)
+        sb3 = rospy.Subscriber('ack', String, receive_ack, queue_size=10)
         pb = rospy.Publisher('events', String, queue_size = 10)
         rospy.Rate(10)
 
         # Receive event commands
+        print("Possible commands:")
+        print("\tlaunch \t\t-> launch communication b/w Rpi and drone")
+        print("\tcam_start \t-> start camera (launch must run first)")
+        print("\tcam_stop \t-> stop camera if active")
+        print("\tkill \t\t-> kill TX1 process\n")
         while not rospy.is_shutdown():
-            x = raw_input()
+            x = raw_input(">> ")
             pb.publish(x)
             if (x == "stop"):
                 cv2.destroyAllWindows()
