@@ -135,7 +135,9 @@ if __name__== '__main__':
                     break
                 raw_capture = PiRGBArray(camera)
                 camera.capture(raw_capture, 'rgb')
-                image_pub.publish(bridge.cv2_to_imgmsg(raw_capture.array, "rgb8"))
+                img_msg = bridge.cv2_to_imgmsg(raw_capture.array, "rgb8")
+                img_msg.header.stamp = rospy.Time.now()
+                image_pub.publish(img_msg)
 
     except Exception as e:
         error_msg = "ERROR: Terminated main.py with exception %s\n" % str(e)
