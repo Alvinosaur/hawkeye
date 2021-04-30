@@ -20,19 +20,37 @@ DEBUG = False
 
 class TargetEstimator3D(object):
     def __init__(self):
-        self.camera_info = utils.read_camera_info()
-        P = np.array(self.camera_info.P).reshape(3, 4)
-        self.K = np.array(self.camera_info.K).reshape(3, 3)
-        self.invP = np.linalg.pinv(P)  # pseudo inverse
+        self.is_simulation = rospy.get_param("/hawkeye/is_simulation")
+        print(type(self.is_simulation), self.is_simulation)
+        if self.is_simulation:
+            print("Using simulation camera params!")
+            self.camera_info = utils.read_camera_info()
+            self.K = np.array(self.camera_info.K).reshape(3, 3)
+            # manually define the desired center pixel:
+            self.K[0, -1] = self.camera_info.width / 2
+            self.K[1, -1] = self.camera_info.height / 2
+
+            # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
+            self.Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
+        else:
+            extrinsic_data = np.load("../calibration/image_to_drone.npz", allow_pickle=True)
+            self.T_drone_to_camera = extrinsic_data["T_drone_to_camera"],
+            self.R_drone_to_camera = extrinsic_data["R_drone_to_camera"],
+            self.T_camera_to_image = extrinsic_data["T_camera_to_image"],
+            self.R_camera_to_image = extrinsic_data["R_camera_to_image"]
+            cv_file = cv2.FileStorage("../calibration/camera_calibration.yaml", cv2.FILE_STORAGE_READ)
+            self.K = cv_file.getNode("K").mat()
+            # manually define the desired center pixel:
+            self.K[0, -1] = extrinsic_data["width"] / 2
+            self.K[1, -1] = extrinsic_data["height"] / 2
+
         self.invK = np.linalg.inv(self.K)
-        # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
-        self.Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
 
         self.img_msg = None
         self.target_gt_pose_msg = None
         self.drone_pose_msg = None
         self.t0 = None
-        self.N = 10  # prediction horizon length
+        self.N = 5  # prediction horizon length
         self.dt = 0.1
 
         # Initialize estimator
@@ -107,16 +125,27 @@ class TargetEstimator3D(object):
         cv2.imshow("image", image)
         cv2.waitKey(3)
 
-        pixel = np.array([centerX + self.img_msg.width / 2,
-                          centerY + self.img_msg.height / 2,
-                          1])
-        pixel_cam = self.invK @ pixel  # pixel position in camera frame
-        pixel_cam = np.array([[0, 0, 1],
-                              [-1, 0, 0],
-                              [0, -1, 0]]) @ pixel_cam
+        # around 90mm -> .09m
+
+        # Perform manual offset and transform for simulation camera
+        # Ideally though, we want the center of the image [width / 2, height / 2] to map to that position.
+        # To achieve this, we can modify the K matrix so the film center is not
+        # the bottom right corner of the image, but the center.
+        # K  = [fx, s, x0 - width/2]
+        #      [0 ,fy, y0 - height/2]
+        #      [0, 0,  1                  ]
+        if self.is_simulation:
+            pixel = np.array([centerX, centerY, 1])
+            pixel_cam = self.invK @ pixel  # pixel position in camera frame
+            pixel_cam = np.array([[0, 0, 1],
+                                  [-1, 0, 0],
+                                  [0, -1, 0]]) @ pixel_cam
+            pixel_drone = self.Rdc @ pixel_cam
+        # else:
+        #     pixel_cam = np.array([centerX, centerY, 1])
+        #     pixel_drone =
 
         # transform from camera frame to drone frame
-        pixel_drone = self.Rdc @ pixel_cam
 
         # transform from drone frame to world frame
         T = np.array([self.drone_pose_msg.pose.position.x,
