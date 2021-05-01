@@ -1,17 +1,11 @@
-Random Token: 28611
+Random Token: 26732
 Initializing ROS!
 Received event data: "launch"
 Processing PX4 launch event...
 Launching communications with Pixhawk!
 Sending acknowledgement to Jetson!
-Received event data: "launch"
-Processing PX4 launch event...
 Received event data: "cam_start"
 Processing camera start event...
 Starting up camera!
-Sending acknowledgement to Jetson!
-Received event data: "cam_stop"
-Processing camera stop event...
-Stopping camera!
 Sending acknowledgement to Jetson!
 Received event data: "kill"
