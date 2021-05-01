@@ -9,11 +9,10 @@ import sys
 
 
 class DroneMPC(object):
-    desired_horiz_dist = 10  # m
+    desired_horiz_dist = 22  # m
     desired_height = 8  # m
 
     # Quadratic costs
-    Q = np.diag([20, 20, 20, 0.1, 0.1, 0.1, 1])
     R = np.diag([1, 1, 1, 0.001])
 
     def __init__(self, N=10, dt=0.1, load_solver=True, solver_dir="drone_mpc_compiled"):
@@ -53,8 +52,8 @@ class DroneMPC(object):
         min_z = 6
         max_z = 10
         # x  y  z  vx  vy  vz  yaw
-        self.state_lb = np.array([min_x, min_y, min_z, -max_horiz_vel, -max_horiz_vel, -max_vert_vel, min_yaw])
-        self.state_ub = np.array([max_x, max_y, max_z, max_horiz_vel, max_horiz_vel, max_vert_vel, max_yaw])
+        # self.state_lb = np.array([min_x, min_y, min_z, -max_horiz_vel, -max_horiz_vel, -max_vert_vel, min_yaw])
+        # self.state_ub = np.array([max_x, max_y, max_z, max_horiz_vel, max_horiz_vel, max_vert_vel, max_yaw])
 
         # actually weigh the terminal cost at time N lower since target pose estimate is less reliable
         # self.terminal_cost = 0.5
@@ -62,6 +61,7 @@ class DroneMPC(object):
         # Forces Pro solver
         self.model = None
         self.generate_model()
+        self.output_format = 'x{0:0%dd}' % (int(math.log(self.N) / math.log(10)) + 1)
 
         self.solver = None
         if load_solver:
@@ -120,8 +120,7 @@ class DroneMPC(object):
         desired_dist_cost = (DroneMPC.desired_horiz_dist - horiz_dist) ** 2
 
         control_cost = casadi.mtimes([u.T, DroneMPC.R, u])
-
-        return 100 * viewpoint_cost + 10 * desired_height_cost + 10 * desired_dist_cost + 0.01 * control_cost
+        return 10 * (1000 * viewpoint_cost + desired_height_cost + desired_dist_cost) + 0.01 * control_cost
 
     def generate_model(self):
         self.model = forcespro.nlp.SymbolicModel()  # create empty model
@@ -138,22 +137,22 @@ class DroneMPC(object):
         # self.model.hl = np.concatenate([ctrl_lb, state_lb])
         # self.model.hu = np.concatenate([ctrl_ub, state_ub])
         # self.model.ineq = eval_state_constraints
-        self.model.lb = np.concatenate([self.ctrl_lb, self.state_lb])
-        self.model.ub = np.concatenate([self.ctrl_ub, self.state_ub])
+        # self.model.lb = np.concatenate([self.ctrl_lb, self.state_lb])
+        # self.model.ub = np.concatenate([self.ctrl_ub, self.state_ub])
 
         self.model.xinitidx = range(4, 11)
 
     def generate_solver(self, solver_dir):
         codeoptions = forcespro.CodeOptions(solver_dir)
-        codeoptions.maxit = 1000  # Maximum number of iterations
+        codeoptions.maxit = 5000  # Maximum number of iterations
         codeoptions.printlevel = 0  # Use printlevel = 2 to print progress (but
         #                             not for timings)
         codeoptions.optlevel = 0  # 0 no optimization, 1 optimize for size,
         #                             2 optimize for speed, 3 optimize for size & speed
         codeoptions.cleanup = False
         codeoptions.timing = 1
-        # codeoptions.nlp.hessian_approximation = 'bfgs'
-        # codeoptions.solvemethod = 'PDIP_NLP' # choose the solver method Sequential
+        codeoptions.nlp.hessian_approximation = 'bfgs'
+        codeoptions.solvemethod = 'PDIP_NLP' # choose the solver method Sequential
         #                              Quadratic Programming
         # codeoptions.sqp_nlp.maxqps = 1      # maximum number of quadratic problems to be solved
         # codeoptions.sqp_nlp.reg_hessian = 5e-9 # increase this if exitflag=-8
@@ -165,6 +164,7 @@ class DroneMPC(object):
     def solve(self, x0, target_pixel, target_traj):
         # https://forces.embotech.com/Documentation/solver_options/index.html?highlight=pdip_nlp
         # Set initial condition
+        print(self.model.N)
         z0i = np.zeros((self.model.nvar, 1))
         z0 = np.transpose(np.tile(z0i, (1, self.model.N)))
         problem = {"x0": z0,
@@ -186,8 +186,9 @@ class DroneMPC(object):
 
         # Extract output
         temp = np.zeros((self.model.N, self.model.nvar))
+
         for i in range(0, self.model.N):
-            temp[i, :] = output[f'x{i+1}']
+            temp[i, :] = output[self.output_format.format(i+1)]
         U_mpc = temp[:, :4]
         X_mpc = temp[:, 4:]
         return X_mpc, U_mpc

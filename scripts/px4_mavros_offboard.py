@@ -13,8 +13,9 @@ from scipy.spatial.transform import Rotation
 import math
 import numpy as np
 
-from drone_mpc_forces_pro import DroneMPC
+from drone_mpc import DroneMPC
 import utils
+import threading
 
 
 class Px4Controller:
@@ -26,19 +27,28 @@ class Px4Controller:
 
         # motion planner
         self.threshold_timeout = 0.5
-        self.N = 5
-        self.dt = 0.1
-        self.drone_mpc = DroneMPC(N=self.N, dt=self.dt, load_solver=True)
+        self.return_home_timeout = 3
+        self.N = 4
+        self.dt = 0.5
+        # self.drone_mpc = DroneMPC(N=self.N, dt=self.dt, load_solver=True)
+        self.drone_mpc = DroneMPC(N=self.N)
+        self.t_offset = 0
+        self.t_solved = time.time() + self.t_offset
+        self.solver_thread = None
 
         self.local_pose = None
+        self.local_q = None
         self.local_vel = None
 
+        self.mavros_state = None
         self.arm_state = False
-        self.offboard_state = False
+        self.flight_mode = "Land"
 
         self.target_path = None
         self.X_mpc = None
         self.U_mpc = None
+        self.X_all = []
+        self.target_all = []
 
         rospy.init_node("offboard_node")
         # Subscribers
@@ -115,11 +125,11 @@ class Px4Controller:
         return count < max_count
 
     def check_target_tracked(self):
-        if self.target_path is None: return False
+        if self.target_path is None: return False, np.Inf
         t = rospy.get_rostime().to_sec()
         prev_t = self.target_path.header.stamp.to_sec()
         print(t, prev_t, t - prev_t < self.threshold_timeout)
-        return t - prev_t < self.threshold_timeout
+        return t - prev_t < self.threshold_timeout, t - prev_t
 
     def construct_pose_target(self, x, y, z, q=np.array([0, 0, 0, 1])):
         target_raw_pose = PoseStamped()
@@ -146,7 +156,7 @@ class Px4Controller:
                                   pose.pose.position.y,
                                   pose.pose.position.z) for pose in self.target_path.poses])
 
-        q = self.quat_from_pose(self.local_pose)
+        q = self.local_q
         roll, pitch, yaw = Rotation.from_quat(q).as_euler("XYZ")
 
         x = np.array([
@@ -159,28 +169,32 @@ class Px4Controller:
             yaw
         ])
 
-        print("Solving")
+        self.X_all.append(x)
+        self.target_all.append(target_traj)
+
+        start_time = time.time()
         try:
             self.X_mpc, self.U_mpc = self.drone_mpc.solve(
                 x0=x, target_pixel=self.pixel_drone,
-                target_traj=target_traj)
+                target_traj=target_traj, prev_X=self.X_mpc)
         except Exception as e:
             print("Failed to solve due to: %s" % e)
             return None
-        print("Done!")
 
-        np.savez("debug_data", pixel_drone=self.pixel_drone, target_traj=target_traj, drone_q=q, drone_x=x)
-        pos_traj = [self.X_mpc[i, :3].tolist() for i in range(self.N)]
-        self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
+        print("Time to solve: %.1f" % (time.time() - start_time))
+        self.t_solved = time.time() + self.t_offset
 
-        thrust, phi, theta, psi = self.drone_mpc.inverse_dyn(q=q, x_ref=self.X_mpc[0], u=self.U_mpc[0])
-        target_q = Rotation.from_euler("XYZ", [phi, theta, psi]).as_quat()
-        pose_msg = self.construct_pose_target(x=0, y=0, z=0, q=target_q)
+    # def generate_action_v2(self):
+    #
 
-        thrust_msg = Thrust()
-        thrust_msg.thrust = thrust
+    def use_prev_traj(self, path_index):
+        x, y, z = self.X_mpc[path_index, :3]
+        # thrust, phi, theta, psi = self.drone_mpc.inverse_dyn(q=self.local_q, x_ref=self.X_mpc[1], u=self.U_mpc[path_index])
+        yaw = self.X_mpc[path_index, -1] % (2 * math.pi)
+        target_q = Rotation.from_euler("XYZ", [0, 0, yaw]).as_quat()
+        pose_msg = self.construct_pose_target(x=x, y=y, z=z, q=target_q)
 
-        return pose_msg, thrust_msg
+        return pose_msg
 
     def reached_target(self, cur_p, target_p, threshold=0.1):
         delta_x = math.fabs(cur_p.pose.position.x - target_p.position.x)
@@ -197,6 +211,7 @@ class Px4Controller:
 
     def local_pose_callback(self, msg):
         self.local_pose = msg
+        self.local_q = self.quat_from_pose(msg)
 
     def local_vel_callback(self, msg):
         self.local_vel = msg
@@ -220,7 +235,7 @@ class Px4Controller:
 
     def offboard(self):
         # DO NOT USE, it's safer to manually switch on offboard mode
-        if self.flightModeService(custom_mode='OFFBOARD'):
+        if self.flightModeService(custom_mode=State.MODE_PX4_OFFBOARD):
             return True
         else:
             print("Vehicle Offboard failed")
@@ -230,7 +245,7 @@ class Px4Controller:
         reached_takeoff_height = (
                 (abs(self.local_pose.pose.position.z - self.takeoff_height) < self.takeoff_height_tol) or
                 self.local_pose.pose.position.z > self.takeoff_height)
-        cur_q = self.quat_from_pose(self.local_pose)
+        cur_q = self.local_q
         reached_takeoff_ori = np.isclose(abs(self.takeoff_q @ cur_q), 1.0, atol=1e-3)
         return reached_takeoff_height and reached_takeoff_ori and self.arm_state
 
@@ -246,24 +261,36 @@ class Px4Controller:
         print("Successful Takeoff!")
         self.t0 = rospy.get_rostime().to_sec()
 
-        rate = rospy.Rate(10)  # Hz
+        rate = rospy.Rate(int(1 / self.dt))  # Hz
 
         while self.arm_state and not rospy.is_shutdown():
-            # desired_pos = self.construct_pose_target(x=0, y=0, z=self.takeoff_height, q=self.takeoff_q)
-            # self.pos_control_pub.publish(desired_pos)
-            # print(self.local_pose.pose.position.z)
-            # if np.isclose(self.local_pose.pose.position.z, self.takeoff_height, atol=1e-2):
-            action = None
-            if self.check_target_tracked():
-                print("Generating action!")
-                action = self.generate_action()
-                if action is not None:
-                    pose_msg, thrust_msg = action
-                    self.att_control_pub.publish(pose_msg)
-                    self.thrust_control_pub.publish(thrust_msg)
+            if self.mavros_state == State.MODE_PX4_OFFBOARD:
+                targed_tracked, time_since_detected = self.check_target_tracked()
+                if (self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked:
+                    print("Generating action!")
+                    # Spawn a process to run this independently:
+                    self.solver_thread = threading.Thread(target=self.generate_action)
+                    self.solver_thread.start()
 
-            if action is None:
-                desired_pos = self.construct_pose_target(x=0, y=0, z=self.takeoff_height, q=self.takeoff_q)
+                path_index = int(((time.time() - self.t_solved) / self.dt))
+                print(path_index)
+                path_index = min(max(0, path_index), self.N-1)
+                print("Path index: %d" % path_index)
+                print("time_since_detected", time_since_detected)
+                if time_since_detected > self.return_home_timeout or self.X_mpc is None:
+                    print("Staying at origin!")
+                    desired_pos = self.construct_pose_target(
+                        x=0,
+                        y=0,
+                        z=self.takeoff_height, q=self.takeoff_q)
+                else:
+                    print("Using prev path!")
+                    desired_pos = self.use_prev_traj(path_index)
+
+                if self.X_mpc is not None:
+                    pos_traj = [self.X_mpc[i, :3].tolist() for i in range(self.N)]
+                    self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
+
                 self.pos_control_pub.publish(desired_pos)
 
             # if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):

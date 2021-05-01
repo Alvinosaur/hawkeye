@@ -42,11 +42,11 @@ def test():
     K[0, -1] = width / 2
     K[1, -1] = height / 2
 
-    T_world_to_camera = np.array([0.0, 0.0, -0.065])  # random guess
+    T_world_to_camera = np.array([0.0, 0.0, -0.85])  # random guess
 
     # Get pixel location on image: https://yangcha.github.io/ImageViewer/
-    # centerX, centerY = 1024, 34
-    centerX, centerY = width / 2, 196  # 30mm
+    # centerX, centerY = 179, 22
+    centerX, centerY = 182, 101  # 30mm
     pixel = np.array([centerX, centerY, 1])
     true_x = 0
     true_y = 100 * 1e-3  # mm, with respect to camera!
@@ -67,8 +67,6 @@ def test():
         [0, 0, -1]
     ])
     pixel_world = R_camera_to_drone @ pixel_camera + T_world_to_camera
-    import ipdb
-    ipdb.set_trace()
 
     vec = pixel_world - T_world_to_camera
     vec /= np.linalg.norm(vec)
