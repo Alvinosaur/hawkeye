@@ -1,28 +1,40 @@
-import Jetson.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 
 #Pin definitions
-but2_pin = 11
-but_pin = 12
+but2_pin = 15
+but_pin = 18
 
-def stop():
-    print("stop")
+def launch(channel):
+    val = GPIO.input(but2_pin)
+    #print(val)
+    if(val == 1):
+        print("launch")
+    if(val == 0):
+        print("no")
 
-def start():
-    print("start")
+
+def start(channel):
+    val = GPIO.input(but_pin)
+    if(val == 1):
+        print("start")
+    if(val == 0):
+        print("stop")
 
 def main():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(but2_pin, GPIO.IN)
     GPIO.setup(but_pin, GPIO.IN)
 
-    GPIO.add_event_detect(but_pin, GPIO.FALLING, callback=stop, bouncetime=10)
+    GPIO.add_event_detect(but_pin, GPIO.FALLING, callback=start, bouncetime=50)
+    GPIO.add_event_detect(but2_pin, GPIO.BOTH, callback=launch, bouncetime=50)
     #GPIO.add_event_detect(but_pin, GPIO.RISING, callback=start, bouncetime=10)
     print("starting program")
     try:
         while True:
-            val = GPIO.input(but_pin)
-            print(val)
+            #val = GPIO.input(but_pin)
+            #print(val)
+            pass
     finally:
         GPIO.cleanup()
 

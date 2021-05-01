@@ -1,4 +1,5 @@
 from roslaunch.parent import ROSLaunchParent
+import RPi.GPIO as GPIO
 import rospy
 from cv_bridge import CvBridge
 import cv2
@@ -11,6 +12,8 @@ import sys
 import signal
 import zc.lockfile
 from objectDetect import detect_object
+from mavros_msgs.msg import State
+from mavros_msgs.srv import SetMode
 
 # Initialization
 lock = zc.lockfile.LockFile('lock')     # Ensures two instances of program can't be run simultaneously
@@ -21,6 +24,25 @@ parent = ROSLaunchParent("TX1", [], is_core = True)
 parent.start()
 print("\n--------------------------------------\n")
 bridge = CvBridge()
+
+#Pin definitions
+but2_pin = 15
+but_pin = 18
+
+
+# GPIO interrupt handlers
+def launch_kill(pb, channel):
+    val = GPIO.input(but2_pin)
+    if (val == 1):
+        send_event(pb, "launch")
+    if (val == 0):
+        shutdown_program()
+def start_stop(pb, channel):
+    val = GPIO.input(but_pin)
+    if (val == 1):
+        send_event(pb, "cam_start")
+    if (val == 0):
+        send_event(pb, "cam_stop")
 
 
 # Receives a frame from the camera, runs image processing and displays output
@@ -42,6 +64,12 @@ def receive_status_msg(data):
     f.write(data.msg + "\n")
 
 
+# Send commnd to Raspberry Pi
+def send_event(pb, event):
+    print("Sending event %s" % event)
+    pb.publish(event)
+
+
 # Receives acknowlgement from Raspberry Pi
 def receive_ack(s):
     if (s.data == "ACK"):
@@ -53,11 +81,17 @@ def receive_ack(s):
         sys.stdout.write(">> ")
     sys.stdout.flush()
 
+# Set flight mode
+def set_flight_mode(service, mode):
+    service(custom_mode=mode)
+
 
 # Cleanly exit program
 def shutdown_program():
+    print("\nKilling program\n")
     cv2.destroyAllWindows()
     parent.shutdown()
+    GPIO.cleanup()
     f.close()
     lock.close()
     os._exit(0)
@@ -76,22 +110,39 @@ if __name__== '__main__':
         sb2 = rospy.Subscriber('rosout', Log, receive_status_msg, queue_size = 10)
         sb3 = rospy.Subscriber('ack', String, receive_ack, queue_size=10)
         pb = rospy.Publisher('events', String, queue_size = 10)
+        flightModeService = rospy.ServiceProxy('/mavros/set_mode', SetMode)
         rospy.Rate(10)
 
-        # Receive event commands
+        # Initialize GPIO for button input
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(but2_pin, GPIO.IN)
+        GPIO.setup(but_pin, GPIO.IN)
+        GPIO.add_event_detect(but_pin, GPIO.FALLING, callback=lambda x: start_stop(pb, x), bouncetime=50)
+        GPIO.add_event_detect(but2_pin, GPIO.BOTH, callback=lambda x: launch_kill(pb, x), bouncetime=50)
+
+        # Receive event commands via console just in case buttons don't work
         print("Possible commands:")
         print("\tlaunch \t\t-> launch communication b/w Rpi and drone")
         print("\tcam_start \t-> start camera (launch must run first)")
         print("\tcam_stop \t-> stop camera if active")
         print("\tkill \t\t-> kill TX1 process\n")
-        while not rospy.is_shutdown():
+    except Exception as e:
+        print("ERROR: Terminated main.py with exception %s" % e)
+
+    while not rospy.is_shutdown():
+        try:    
             x = raw_input(">> ")
-            pb.publish(x)
+            send_event(pb, x)
             if (x == "stop"):
                 cv2.destroyAllWindows()
             elif (x == "kill"):
                 os.kill(os.getpid(), signal.SIGINT)
+            elif (x == "land"):
+                set_flight_mode(flightModeService, State.MODE_PX4_LAND)
+            elif (x == "return"):
+                set_flight_mode(flightModeService, State.MODE_PX4_RTL)
+            elif (x == "hold"):
+                set_flight_mode(flightModeService, State.MODE_PX4_LOITER)
 
-    except Exception as e:
-        print("ERROR: Terminated main.py with exception %s\n")
-        shutdown_program()
+        except Exception as e:
+            print("ERROR: Received exception %s" % e)
