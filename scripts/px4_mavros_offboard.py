@@ -148,7 +148,6 @@ class Px4Controller:
             self.att.type_mask = 7  # ignore body rate
         self.att.header.stamp = rospy.Time.now()
         self.att.thrust = thrust
-        print(self.att)
         self.att_control_pub.publish(self.att)
 
     def check_target_tracked(self):
@@ -209,7 +208,6 @@ class Px4Controller:
 
         end_time = time.time()
 
-        print("Finished solving in time %.3f" % (end_time - start_time))
         self.t_solved = time.time() + self.t_offset
         self.solved = True
 
@@ -223,6 +221,7 @@ class Px4Controller:
                                   pose.pose.position.z) for pose in self.target_path.poses])
         self.t_solved = time.time()
         self.velocity_plan = self.drone_mpc.update(x0, target_traj)
+        self.velocity_plan = np.concatenate([self.velocity_plan, np.zeros((self.N, 1))], axis=1)
         self.solved = True
 
     def use_prev_traj(self, path_index):
@@ -310,8 +309,8 @@ class Px4Controller:
                 targed_tracked, time_since_detected = self.check_target_tracked()
                 time_since_solved = time.time() - self.t_solved
                 if (
-                        self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked and time_since_solved > self.N * self.dt:
-                    print("Generating action!")
+                        self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked:
+                    # print("Generating action!")
                     # Spawn a process to run this independently:
                     if self.version == 1:
                         self.solver_thread = threading.Thread(target=self.generate_action)
@@ -322,37 +321,38 @@ class Px4Controller:
                 path_index = int(((time.time() - self.t_solved) / self.dt))
                 path_index = min(max(0, path_index), self.N - 1)
                 if time_since_detected > self.return_home_timeout or not self.solved:
-                    print("Staying at origin!")
+                    # print("Staying at origin!")
                     desired_pos = self.construct_pose_target(
                         x=0,
                         y=0,
                         z=self.takeoff_height, q=self.takeoff_q)
                     self.pos_control_pub.publish(desired_pos)
                 else:
-                    print("Using prev path!")
-                    if self.version == 1:
-                        u = self.U_mpc[path_index] + self.Gff
-                        x = self.X_mpc[path_index]
-                        thrust, phid, thetad, psid = self.drone_mpc.inverse_dyn(self.local_q, x_ref=x, u=u)
-                        target_q = Rotation.from_euler("XYZ", [phid, thetad, psid]).as_quat()
-                        self.control_attitude(target_q=target_q, thrust=thrust)
-                    else:
-                        x0 = np.array([
-                            self.local_pose.pose.position.x,
-                            self.local_pose.pose.position.y,
-                            self.local_pose.pose.position.z])
-                        dx = self.velocity_plan[path_index, :] * self.dt
-                        dx = np.append(dx, 0)
-                        target_x = x0 + dx
-                        desired_pos = self.construct_pose_target(
-                            x=target_x[0],
-                            y=target_x[1],
-                            z=self.takeoff_height, q=self.takeoff_q)
-                        self.pos_control_pub.publish(desired_pos)
+                    x0 = np.array([
+                        self.local_pose.pose.position.x,
+                        self.local_pose.pose.position.y,
+                        self.local_pose.pose.position.z])
+                    dx = self.velocity_plan[path_index, :] * self.dt
+                    target_x = x0 + dx
+                    desired_pos = self.construct_pose_target(
+                        x=target_x[0],
+                        y=target_x[1],
+                        z=self.takeoff_height, q=self.takeoff_q)
 
-                if self.X_mpc is not None:
-                    pos_traj = [self.X_mpc[i, :3].tolist() for i in range(self.N)]
-                    self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
+                    trajectory = np.zeros((len(self.velocity_plan), 3))
+                    x = x0
+                    for i in range(len(self.velocity_plan)):
+                        dx = self.velocity_plan[i, :] * self.dt
+                        x += dx * self.dt
+                        trajectory[i, :] = x
+
+                    self.output_path_pub.publish(utils.create_path(traj=trajectory, dt=self.dt, frame="world"))
+                    self.pos_control_pub.publish(desired_pos)
+
+                # if self.X_mpc is not None:
+                #     print("Here!")
+                #     pos_traj = [self.X_mpc[i, :3].tolist() for i in range(self.N)]
+                #     self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
 
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
