@@ -69,7 +69,7 @@ if __name__ == '__main__':
         data = np.load("geofence_map.npz")
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
-        ax.scatter(data["global_x"], data["global_y"], data["global_z"], "b", label="global")
+        # ax.scatter(data["global_x"], data["global_y"], data["global_z"], "b", label="global")
         ax.scatter(data["local_x"], data["local_y"], data["local_z"], "r", label="local")
 
         ax.set_xlabel('X Label')

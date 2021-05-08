@@ -15,7 +15,7 @@
 
 <!--	Use simulator's provided camera matrix-->
 	<param name="/hawkeye/is_simulation" value="true"/>
-	<node pkg="hawkeye" type="target_gt" name="hawkeye_target_gt_node"/>
+	<node pkg="hawkeye" type="simulate_target" name="simulate_target_node"/>
 	<node pkg="hawkeye" type="tf_broadcaster" name="hawkeye_tf_broadcaster_node"/>
 	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_broadcaster"
 		  args="0 0 0 0 0.38267273 0 0.92388396 map camera"/>

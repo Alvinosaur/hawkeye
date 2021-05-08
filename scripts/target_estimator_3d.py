@@ -85,7 +85,8 @@ class TargetEstimator3D(object):
 
     def predict_3d_path(self):
         # Expects that predict_3d_pos is called first!
-        state_path = [self.estimator.predict_target_state(time.time() + self.dt * i + self.t_offset) for i in range(self.N)]
+        state_path = [self.estimator.predict_target_state(time.time() + self.dt * i + self.t_offset) for i in
+                      range(self.N)]
         return utils.create_path(traj=state_path, dt=self.dt, frame="world")
 
     def predict_3d_pos(self):
@@ -98,7 +99,6 @@ class TargetEstimator3D(object):
         if self.drone_pose_msg is None:
             print("No drone pose received")
             return None
-
         image = self.imgmsg_to_cv2(self.img_msg)
 
         # detect 2d position of target

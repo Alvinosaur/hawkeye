@@ -100,7 +100,7 @@ class DroneMPC(object):
         desired_horiz_dist = 22
         desired_dist_cost = (desired_horiz_dist - horiz_dist) ** 2
 
-        return 1000 * viewpoint_cost + desired_height_cost # + desired_dist_cost
+        return 1000 * viewpoint_cost + desired_height_cost  # + desired_dist_cost
 
     @staticmethod
     def objective(U, self, t, x0, target_traj, target_pixel, prev_X):
@@ -141,8 +141,8 @@ class DroneMPC(object):
 
     def update(self, x0, target_traj):
 
-        yaw = math.pi/4
-        pitch = -math.pi/4
+        yaw = math.pi / 4
+        pitch = -math.pi / 4
         cam_vector = (math.cos(yaw) * math.cos(pitch),
                       math.sin(yaw) * math.cos(pitch),
                       math.sin(pitch))
@@ -154,45 +154,45 @@ class DroneMPC(object):
             # Objective -> be close to target in direction of camera
             J = 0
             for i in range(len(predictions)):
-                drone_x = drone_x + (vs[2*i] * self.dt)
-                drone_y = drone_y + (vs[2*i + 1] * self.dt)
+                drone_x = drone_x + (vs[2 * i] * self.dt)
+                drone_y = drone_y + (vs[2 * i + 1] * self.dt)
                 target_vector = (predictions[i, 0] - drone_x, predictions[i, 1] - drone_y,
                                  predictions[i, 2] - drone_z)
-                mag_squared = target_vector[0]**2 + target_vector[1]**2 + target_vector[2]**2
+                mag_squared = target_vector[0] ** 2 + target_vector[1] ** 2 + target_vector[2] ** 2
                 dot = (cam_vector[0] * target_vector[0] + \
                        cam_vector[1] * target_vector[1] + \
                        cam_vector[2] * target_vector[2]) / math.sqrt(mag_squared)
                 J += dot
-            J = -J # Minimization not maximization
+            J = -J  # Minimization not maximization
 
             # Regularization -> as simple of a model as possible
             r = 0
             for i in range(len(predictions)):
-                r += vs[2*i]**2
-                r += vs[2*i + 1]**2
+                r += vs[2 * i] ** 2
+                r += vs[2 * i + 1] ** 2
 
             # Add the two
-            lam = 0.02  # TODO: CHANGE THIS
+            lam = 0.01  # TODO: CHANGE THIS
             return J + lam * r
 
         # Make constraints on velocity of drone and initial
         l = 2 * len(target_traj)
         init = np.zeros(l)
-        #lbs = [-self.drone.max_vel for i in range(l)]
-        #ubs = [self.drone.max_vel for i in range(l)]
-        #bounds = Bounds(lbs, ubs)
+        # lbs = [-self.drone.max_vel for i in range(l)]
+        # ubs = [self.drone.max_vel for i in range(l)]
+        # bounds = Bounds(lbs, ubs)
 
         # Optimize
-        #res = minimize(lambda vs: objective(predictions, cam_vector, drone_x, drone_y, drone_z, vs),
+        # res = minimize(lambda vs: objective(predictions, cam_vector, drone_x, drone_y, drone_z, vs),
         #               init, method='trust-constr', bounds=bounds)
         res = scipy.optimize.minimize(lambda vs: objective(target_traj, cam_vector, drone_x, drone_y, drone_z, vs),
-               init, method='BFGS')
+                                      init, method='BFGS')
         i = 0
         motion_plan = []
         for i in range(self.N):
-            motion_plan.append((res.x[2*i], res.x[2*i + 1]))
+            motion_plan.append((res.x[2 * i], res.x[2 * i + 1]))
 
-        return motion_plan
+        return np.vstack(motion_plan)
 
     @staticmethod
     def inverse_dyn(q, x_ref, u):

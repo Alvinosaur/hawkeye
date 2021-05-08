@@ -21,20 +21,24 @@ import threading
 class Px4Controller:
     def __init__(self):
         # Takeoff
+        # self.takeoff_height = 3.2
         self.takeoff_height = 8
         self.takeoff_height_tol = 0.2
         self.takeoff_q = Rotation.from_euler('zyx', [45, 0, 0], degrees=True).as_quat()
 
         # motion planner
+        self.version = 2  # [1, 2]
         self.threshold_timeout = 0.5
         self.return_home_timeout = 3
         self.N = 4
+        # self.dt = 0.1
         self.dt = 0.5
         # self.drone_mpc = DroneMPC(N=self.N, dt=self.dt, load_solver=True)
         self.drone_mpc = DroneMPC(N=self.N)
         self.t_offset = 0
         self.t_solved = time.time() + self.t_offset
         self.solver_thread = None
+        self.Gff = np.array([0, 0, 9.8, 0])
 
         self.local_pose = None
         self.local_q = None
@@ -49,6 +53,15 @@ class Px4Controller:
         self.U_mpc = None
         self.X_all = []
         self.target_all = []
+        self.velocity_plan = None
+        self.solved = False
+        self.time_spent = []
+
+        # Attitude message
+        self.att = AttitudeTarget()
+        self.att.body_rate = Vector3()
+        self.att.header = Header()
+        self.att.header.frame_id = "base_footprint"
 
         rospy.init_node("offboard_node")
         # Subscribers
@@ -63,8 +76,8 @@ class Px4Controller:
 
         # Publishers
         self.pos_control_pub = rospy.Publisher('mavros/setpoint_position/local', PoseStamped, queue_size=10)
-        # self.att_control_pub = rospy.Publisher('mavros/setpoint_raw/attitude', AttitudeTarget, queue_size=10)
-        self.att_control_pub = rospy.Publisher('mavros/setpoint_attitude/attitude', PoseStamped, queue_size=10)
+        self.att_control_pub = rospy.Publisher('mavros/setpoint_raw/attitude', AttitudeTarget, queue_size=10)
+        # self.att_control_pub = rospy.Publisher('mavros/setpoint_attitude/attitude', PoseStamped, queue_size=10)
         self.thrust_control_pub = rospy.Publisher('mavros/setpoint_attitude/thrust', Thrust, queue_size=10)
         self.output_path_pub = rospy.Publisher('/hawkeye/drone_path', Path, queue_size=10)
 
@@ -124,11 +137,24 @@ class Px4Controller:
 
         return count < max_count
 
+    def control_attitude(self, body_rate=None, target_q=None, thrust=0.705):
+        if body_rate is not None:
+            self.att.body_rate.x = body_rate[0]
+            self.att.body_rate.y = body_rate[1]
+            self.att.body_rate.z = body_rate[2]
+        else:
+            assert (target_q is not None)
+            self.att.orientation = Quaternion(*target_q)
+            self.att.type_mask = 7  # ignore body rate
+        self.att.header.stamp = rospy.Time.now()
+        self.att.thrust = thrust
+        print(self.att)
+        self.att_control_pub.publish(self.att)
+
     def check_target_tracked(self):
         if self.target_path is None: return False, np.Inf
         t = rospy.get_rostime().to_sec()
         prev_t = self.target_path.header.stamp.to_sec()
-        print(t, prev_t, t - prev_t < self.threshold_timeout)
         return t - prev_t < self.threshold_timeout, t - prev_t
 
     def construct_pose_target(self, x, y, z, q=np.array([0, 0, 0, 1])):
@@ -181,11 +207,23 @@ class Px4Controller:
             print("Failed to solve due to: %s" % e)
             return None
 
-        print("Time to solve: %.1f" % (time.time() - start_time))
-        self.t_solved = time.time() + self.t_offset
+        end_time = time.time()
 
-    # def generate_action_v2(self):
-    #
+        print("Finished solving in time %.3f" % (end_time - start_time))
+        self.t_solved = time.time() + self.t_offset
+        self.solved = True
+
+    def generate_action_v2(self):
+        x0 = np.array([
+            self.local_pose.pose.position.x,
+            self.local_pose.pose.position.y,
+            self.local_pose.pose.position.z])
+        target_traj = np.vstack([(pose.pose.position.x,
+                                  pose.pose.position.y,
+                                  pose.pose.position.z) for pose in self.target_path.poses])
+        self.t_solved = time.time()
+        self.velocity_plan = self.drone_mpc.update(x0, target_traj)
+        self.solved = True
 
     def use_prev_traj(self, path_index):
         x, y, z = self.X_mpc[path_index, :3]
@@ -221,6 +259,7 @@ class Px4Controller:
 
     def arm(self):
         if self.armService(True):
+            print("Vehicle arming Success!")
             return True
         else:
             print("Vehicle arming failed!")
@@ -235,7 +274,7 @@ class Px4Controller:
 
     def offboard(self):
         # DO NOT USE, it's safer to manually switch on offboard mode
-        if self.flightModeService(custom_mode=State.MODE_PX4_OFFBOARD):
+        if self.flightModeService(base_mode=220, custom_mode=State.MODE_PX4_OFFBOARD):
             return True
         else:
             print("Vehicle Offboard failed")
@@ -264,42 +303,61 @@ class Px4Controller:
         rate = rospy.Rate(int(1 / self.dt))  # Hz
 
         while self.arm_state and not rospy.is_shutdown():
+            # takeoff_pos = self.construct_pose_target(x=0, y=0, z=self.takeoff_height, q=self.takeoff_q)
+            # count = 0
+            # self.pos_control_pub.publish(takeoff_pos)
             if self.mavros_state == State.MODE_PX4_OFFBOARD:
                 targed_tracked, time_since_detected = self.check_target_tracked()
-                if (self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked:
+                time_since_solved = time.time() - self.t_solved
+                if (
+                        self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked and time_since_solved > self.N * self.dt:
                     print("Generating action!")
                     # Spawn a process to run this independently:
-                    self.solver_thread = threading.Thread(target=self.generate_action)
+                    if self.version == 1:
+                        self.solver_thread = threading.Thread(target=self.generate_action)
+                    else:
+                        self.solver_thread = threading.Thread(target=self.generate_action_v2)
                     self.solver_thread.start()
 
                 path_index = int(((time.time() - self.t_solved) / self.dt))
-                print(path_index)
-                path_index = min(max(0, path_index), self.N-1)
-                print("Path index: %d" % path_index)
-                print("time_since_detected", time_since_detected)
-                if time_since_detected > self.return_home_timeout or self.X_mpc is None:
+                path_index = min(max(0, path_index), self.N - 1)
+                if time_since_detected > self.return_home_timeout or not self.solved:
                     print("Staying at origin!")
                     desired_pos = self.construct_pose_target(
                         x=0,
                         y=0,
                         z=self.takeoff_height, q=self.takeoff_q)
+                    self.pos_control_pub.publish(desired_pos)
                 else:
                     print("Using prev path!")
-                    desired_pos = self.use_prev_traj(path_index)
+                    if self.version == 1:
+                        u = self.U_mpc[path_index] + self.Gff
+                        x = self.X_mpc[path_index]
+                        thrust, phid, thetad, psid = self.drone_mpc.inverse_dyn(self.local_q, x_ref=x, u=u)
+                        target_q = Rotation.from_euler("XYZ", [phid, thetad, psid]).as_quat()
+                        self.control_attitude(target_q=target_q, thrust=thrust)
+                    else:
+                        x0 = np.array([
+                            self.local_pose.pose.position.x,
+                            self.local_pose.pose.position.y,
+                            self.local_pose.pose.position.z])
+                        dx = self.velocity_plan[path_index, :] * self.dt
+                        dx = np.append(dx, 0)
+                        target_x = x0 + dx
+                        desired_pos = self.construct_pose_target(
+                            x=target_x[0],
+                            y=target_x[1],
+                            z=self.takeoff_height, q=self.takeoff_q)
+                        self.pos_control_pub.publish(desired_pos)
 
                 if self.X_mpc is not None:
                     pos_traj = [self.X_mpc[i, :3].tolist() for i in range(self.N)]
                     self.output_path_pub.publish(utils.create_path(traj=pos_traj, dt=self.dt, frame="world"))
 
-                self.pos_control_pub.publish(desired_pos)
-
-            # if (self.state is "LAND") and (self.local_pose.pose.position.z < 0.15):
-            #     if self.disarm():
-            #         self.state = "DISARMED"
-
             try:  # prevent garbage in console output when thread is killed
                 rate.sleep()
             except rospy.ROSInterruptException:
+                for t in self.time_spent: print(t)
                 pass
 
 
