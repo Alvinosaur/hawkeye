@@ -141,7 +141,7 @@ class DroneMPC(object):
 
     def update(self, x0, target_traj):
 
-        yaw = math.pi / 4
+        yaw = -math.pi / 2
         pitch = -math.pi / 4
         cam_vector = (math.cos(yaw) * math.cos(pitch),
                       math.sin(yaw) * math.cos(pitch),

@@ -20,9 +20,12 @@ DEBUG = False
 
 class TargetEstimator3D(object):
     def __init__(self):
-        self.is_simulation = rospy.get_param("/hawkeye/is_simulation")
+        # self.is_simulation = rospy.get_param("/hawkeye/is_simulation")
+        self.is_simulation = False
         print(type(self.is_simulation), self.is_simulation)
         if self.is_simulation:
+            image_sub = rospy.Subscriber("/iris_fpv_cam/usb_cam/image_raw", Image, self.image_cb,
+                                         queue_size=1)
             print("Using simulation camera params!")
             self.camera_info = utils.read_camera_info()
             self.K = np.array(self.camera_info.K).reshape(3, 3)
@@ -33,16 +36,21 @@ class TargetEstimator3D(object):
             # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
             self.Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
         else:
-            extrinsic_data = np.load("../calibration/image_to_drone.npz", allow_pickle=True)
-            self.T_drone_to_camera = extrinsic_data["T_drone_to_camera"],
-            self.R_drone_to_camera = extrinsic_data["R_drone_to_camera"],
-            self.T_camera_to_image = extrinsic_data["T_camera_to_image"],
+            image_sub = rospy.Subscriber("/image", Image, self.image_cb, queue_size=1)
+
+            extrinsic_data = np.load("/home/alvin/drone_ws/src/hawkeye/calibration/image_to_drone.npz",
+                                     allow_pickle=True)
+            self.T_drone_to_camera = extrinsic_data["T_drone_to_camera"]
+            self.R_drone_to_camera = extrinsic_data["R_drone_to_camera"]
+            self.T_camera_to_image = extrinsic_data["T_camera_to_image"]
             self.R_camera_to_image = extrinsic_data["R_camera_to_image"]
+            height = extrinsic_data["height"]
+            width = extrinsic_data["width"]
             cv_file = cv2.FileStorage("../calibration/camera_calibration.yaml", cv2.FILE_STORAGE_READ)
             self.K = cv_file.getNode("K").mat()
-            # manually define the desired center pixel:
-            self.K[0, -1] = extrinsic_data["width"] / 2
-            self.K[1, -1] = extrinsic_data["height"] / 2
+            self.K[0, -1] = width / 2
+            self.K[1, -1] = height / 2
+            pass
 
         self.invK = np.linalg.inv(self.K)
 
@@ -50,14 +58,14 @@ class TargetEstimator3D(object):
         self.target_gt_pose_msg = None
         self.drone_pose_msg = None
         self.t0 = None
-        self.N = 4  # prediction horizon length
-        self.dt = 0.5
+        self.N = 10  # prediction horizon length
+        self.dt = 0.1
         self.t_offset = 0
 
         # Initialize estimator
         ignore_thresh = np.Inf
-        obs_std = 0.3  # m
-        acc_std = 0.3  # m/s^2
+        obs_std = 0.6  # m
+        acc_std = 0.1  # m/s^2
         p_init = (0, 0, 0)
         v_init = (0, 0, 0)
         a_init = (0, 0, 0)
@@ -106,9 +114,9 @@ class TargetEstimator3D(object):
         if results is None:
             return None
 
-        x, y, w, h, _ = results
-        centerX = x + (w / 2)
-        centerY = y + (h / 2)
+        x, y, box_w, box_h, _ = results
+        centerX = x + (box_w / 2)
+        centerY = y + (box_h / 2)
 
         if DEBUG:
             noise = np.random.random(2) * 10
@@ -123,8 +131,12 @@ class TargetEstimator3D(object):
 
         # draw the centerpoint
         image = cv2.circle(image, (int(centerX), int(centerY)), 3, (255, 0, 0), 2)
-        cv2.imshow("image", image)
-        cv2.waitKey(3)
+
+        if not self.is_simulation:
+            # perform manual flipping across x and y
+            image = np.flipud(image)
+            cv2.imshow("image", image)
+            cv2.waitKey(3)
 
         # around 90mm -> .09m
 
@@ -142,6 +154,13 @@ class TargetEstimator3D(object):
                                   [-1, 0, 0],
                                   [0, -1, 0]]) @ pixel_cam
             pixel_drone = self.Rdc @ pixel_cam
+        else:
+            pixel = np.array([centerX, centerY, 1])
+            pixel_cam = self.invK @ pixel  # pixel position in camera frame
+            pixel_cam = self.R_camera_to_image @ pixel_cam
+            pixel_drone = self.R_drone_to_camera.T @ pixel_cam - self.T_drone_to_camera
+            pixel_drone[0] *= -1
+            pixel_drone[1] *= -1
         # else:
         #     pixel_cam = np.array([centerX, centerY, 1])
         #     pixel_drone =
@@ -206,7 +225,6 @@ class TargetEstimator3D(object):
 if __name__ == "__main__":
     rospy.init_node("test_target_estimator_3d")
     target_estimator = TargetEstimator3D()
-    image_sub = rospy.Subscriber("/iris_fpv_cam/usb_cam/image_raw", Image, target_estimator.image_cb, queue_size=1)
     target_gt_pose_sub = rospy.Subscriber("/hawkeye/target_pose", PoseStamped, target_estimator.target_gt_pose_cb,
                                           queue_size=1)
     drone_pose_sub = rospy.Subscriber("/mavros/local_position/pose", PoseStamped, target_estimator.drone_pose_cb,

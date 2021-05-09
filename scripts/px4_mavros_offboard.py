@@ -7,6 +7,7 @@ from nav_msgs.msg import Path
 from sensor_msgs.msg import Imu, NavSatFix
 from std_msgs.msg import Float32, Float64, String, Header
 
+import cv2
 import time
 from pyquaternion import Quaternion
 from scipy.spatial.transform import Rotation
@@ -30,9 +31,10 @@ class Px4Controller:
         self.version = 2  # [1, 2]
         self.threshold_timeout = 0.5
         self.return_home_timeout = 3
-        self.N = 4
+        self.N = 10
         # self.dt = 0.1
-        self.dt = 0.5
+        self.scale = 3
+        self.dt = 0.1 * self.scale
         # self.drone_mpc = DroneMPC(N=self.N, dt=self.dt, load_solver=True)
         self.drone_mpc = DroneMPC(N=self.N)
         self.t_offset = 0
@@ -86,25 +88,49 @@ class Px4Controller:
         self.flightModeService = rospy.ServiceProxy('/mavros/set_mode', SetMode)
 
         # Drone camera parameters
-        camera_info = utils.read_camera_info()
-        K = np.array(camera_info.K).reshape(3, 3)
-        invK = np.linalg.inv(K)
-        # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
-        Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
+        is_simulation = False
+        if is_simulation:
+            camera_info = utils.read_camera_info()
+            K = np.array(camera_info.K).reshape(3, 3)
+            invK = np.linalg.inv(K)
+            # Drone -> Camera, Roll pitch yaw, found from the iris_cam sdf file
+            Rdc = Rotation.from_euler("xyz", [0, 0.785375, 0]).as_matrix()
 
-        # we want target to lie in center of image
-        target_pix_x = camera_info.width / 2
-        target_pix_y = camera_info.height / 2
-        target_pixel = np.array([target_pix_x + camera_info.width / 2,
-                                 target_pix_y + camera_info.height / 2,
-                                 1])
-        pixel_cam = invK @ target_pixel  # pixel position in camera frame
-        pixel_cam = np.array([[0, 0, 1],
-                              [-1, 0, 0],
-                              [0, -1, 0]]) @ pixel_cam
+            # we want target to lie in center of image
+            target_pix_x = camera_info.width / 2
+            target_pix_y = camera_info.height / 2
+            target_pixel = np.array([target_pix_x + camera_info.width / 2,
+                                     target_pix_y + camera_info.height / 2,
+                                     1])
+            pixel_cam = invK @ target_pixel  # pixel position in camera frame
+            pixel_cam = np.array([[0, 0, 1],
+                                  [-1, 0, 0],
+                                  [0, -1, 0]]) @ pixel_cam
 
-        # transform from camera frame to drone frame
-        self.pixel_drone = Rdc @ pixel_cam
+            # transform from camera frame to drone frame
+            self.pixel_drone = Rdc @ pixel_cam
+        else:
+            extrinsic_data = np.load("/home/alvin/drone_ws/src/hawkeye/calibration/image_to_drone.npz",
+                                     allow_pickle=True)
+            self.T_drone_to_camera = extrinsic_data["T_drone_to_camera"]
+            self.R_drone_to_camera = extrinsic_data["R_drone_to_camera"]
+            self.T_camera_to_image = extrinsic_data["T_camera_to_image"]
+            self.R_camera_to_image = extrinsic_data["R_camera_to_image"]
+            height = extrinsic_data["height"]
+            width = extrinsic_data["width"]
+            cv_file = cv2.FileStorage("/home/alvin/drone_ws/src/hawkeye/calibration/camera_calibration.yaml",
+                                      cv2.FILE_STORAGE_READ)
+            self.K = cv_file.getNode("K").mat()
+            self.K[0, -1] = width / 2
+            self.K[1, -1] = height / 2
+            invK = np.linalg.inv(self.K)
+
+            pixel = np.array([0, 0, 1])
+            pixel_cam = invK @ pixel  # pixel position in camera frame
+            pixel_cam = self.R_camera_to_image @ pixel_cam
+            self.pixel_drone = self.R_drone_to_camera.T @ pixel_cam - self.T_drone_to_camera
+            self.pixel_drone[0] *= -1
+            self.pixel_drone[1] *= -1
 
     @staticmethod
     def quat_from_pose(pose_msg):
@@ -293,61 +319,58 @@ class Px4Controller:
             return
 
         # takeoff to reach desired tracking height
-        if not self.takeoff():
-            print("Failed to takeoff!")
-            return
+        # if not self.takeoff():
+        #     print("Failed to takeoff!")
+        #     return
         print("Successful Takeoff!")
         self.t0 = rospy.get_rostime().to_sec()
 
-        rate = rospy.Rate(int(1 / self.dt))  # Hz
+        rate = rospy.Rate(int(self.scale / self.dt))  # Hz
 
-        while self.arm_state and not rospy.is_shutdown():
+        while not rospy.is_shutdown():
             # takeoff_pos = self.construct_pose_target(x=0, y=0, z=self.takeoff_height, q=self.takeoff_q)
             # count = 0
             # self.pos_control_pub.publish(takeoff_pos)
-            if self.mavros_state == State.MODE_PX4_OFFBOARD:
-                targed_tracked, time_since_detected = self.check_target_tracked()
-                time_since_solved = time.time() - self.t_solved
-                if (
-                        self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked:
-                    # print("Generating action!")
-                    # Spawn a process to run this independently:
-                    if self.version == 1:
-                        self.solver_thread = threading.Thread(target=self.generate_action)
-                    else:
-                        self.solver_thread = threading.Thread(target=self.generate_action_v2)
-                    self.solver_thread.start()
+            # if self.mavros_state == State.MODE_PX4_OFFBOARD:
+            targed_tracked, time_since_detected = self.check_target_tracked()
+            time_since_solved = time.time() - self.t_solved
+            if (self.solver_thread is None or not self.solver_thread.is_alive()) and targed_tracked:
+                # print("Generating action!")
+                # Spawn a process to run this independently:
+                self.solver_thread = threading.Thread(target=self.generate_action_v2)
+                self.solver_thread.start()
 
-                path_index = int(((time.time() - self.t_solved) / self.dt))
-                path_index = min(max(0, path_index), self.N - 1)
-                if time_since_detected > self.return_home_timeout or not self.solved:
-                    # print("Staying at origin!")
-                    desired_pos = self.construct_pose_target(
-                        x=0,
-                        y=0,
-                        z=self.takeoff_height, q=self.takeoff_q)
-                    self.pos_control_pub.publish(desired_pos)
-                else:
-                    x0 = np.array([
-                        self.local_pose.pose.position.x,
-                        self.local_pose.pose.position.y,
-                        self.local_pose.pose.position.z])
-                    dx = self.velocity_plan[path_index, :] * self.dt
-                    target_x = x0 + dx
-                    desired_pos = self.construct_pose_target(
-                        x=target_x[0],
-                        y=target_x[1],
-                        z=self.takeoff_height, q=self.takeoff_q)
+            path_index = int(((time.time() - self.t_solved) / self.dt))
+            path_index = min(max(0, path_index), self.N - 1)
+            if time_since_detected > self.return_home_timeout or not self.solved:
+                # print("Staying at origin!")
+                desired_pos = self.construct_pose_target(
+                    x=0,
+                    y=0,
+                    z=self.takeoff_height, q=self.takeoff_q)
+                self.pos_control_pub.publish(desired_pos)
+            else:
+                x0 = np.array([
+                    self.local_pose.pose.position.x,
+                    self.local_pose.pose.position.y,
+                    self.local_pose.pose.position.z])
+                dx = self.velocity_plan[path_index, :] * self.dt
+                target_x = x0 + dx
+                desired_pos = self.construct_pose_target(
+                    x=target_x[0],
+                    y=target_x[1],
+                    z=self.takeoff_height, q=self.takeoff_q)
 
-                    trajectory = np.zeros((len(self.velocity_plan), 3))
-                    x = x0
-                    for i in range(len(self.velocity_plan)):
-                        dx = self.velocity_plan[i, :] * self.dt
-                        x += dx * self.dt
-                        trajectory[i, :] = x
+                trajectory = np.zeros((len(self.velocity_plan) + 1, 3))
+                x = x0
+                trajectory[0] = x0
+                for i in range(len(self.velocity_plan)):
+                    dx = self.velocity_plan[i, :] * self.dt
+                    x += dx * self.dt
+                    trajectory[i + 1, :] = x
 
-                    self.output_path_pub.publish(utils.create_path(traj=trajectory, dt=self.dt, frame="world"))
-                    self.pos_control_pub.publish(desired_pos)
+                self.output_path_pub.publish(utils.create_path(traj=trajectory, dt=self.dt, frame="world"))
+                self.pos_control_pub.publish(desired_pos)
 
                 # if self.X_mpc is not None:
                 #     print("Here!")
