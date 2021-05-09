@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
-	<arg name="world_name" default="target_tracking"/>
-	<arg name="world_file" default="$(find hawkeye)/worlds/$(arg world_name).world"/>
 
-	<include file="$(find gazebo_ros)/launch/empty_world.launch">
-		<arg name="world_name" value="$(arg world_file)"/>
-		<arg name="verbose" value="true"/>
-	</include>
+    <param name="use_sim_time" value="true"/>
 
-	<!--mavlink-->
-	<include file="$(find mavros)/launch/px4.launch">
-		<arg name="fcu_url" value="udp://:14540@192.168.1.36:14557"/>
-	</include>
+    <!--	Use real camera matrix  -->
+    <param name="/hawkeye/is_simulation" value="false"/>
 
-<!--	Use simulator's provided camera matrix-->
-	<param name="/hawkeye/is_simulation" value="true"/>
-	<node pkg="hawkeye" type="simulate_target" name="simulate_target_node"/>
-	<node pkg="hawkeye" type="tf_broadcaster" name="hawkeye_tf_broadcaster_node"/>
-	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_broadcaster"
-		  args="0 0 0 0 0.38267273 0 0.92388396 map camera"/>
-	<node pkg="rviz" type="rviz" name="rviz"  args="-d $(find hawkeye)/rviz/true_vs_pred_target.rviz" />
-<!--	<node pkg="hawkeye" type="px4_mavros_offboard.py" name="hawkeye_px4_mavros_offboard_node"/>-->
-<!--	<node pkg="hawkeye" type="target_estimator_3d.py" name="hawkeye_target_estimator_3d_node"/>-->
-	<!--	rosrun tf static_transform_publisher 0 0 0 0 0.38267273 0 0.92388396 map camera 1000-->
+    <node pkg="hawkeye" type="tf_broadcaster" name="hawkeye_tf_broadcaster_node" args="--clock"/>
+
+    <node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_broadcaster"
+          args="0.03 0.03 -0.12 0 0.38267273 0 0.92388396 map camera"/>
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find hawkeye)/rviz/true_vs_pred_target.rviz"/>
+    <node pkg="hawkeye" type="px4_mavros_offboard.py" name="hawkeye_px4_mavros_offboard_node"/>
+    <!--    <node pkg="hawkeye" type="target_estimator_3d.py" name="hawkeye_target_estimator_3d_node"/>-->
+    <node pkg="rosbag" type="play" name="rosbag"
+          args="--clock $(find hawkeye)/rosbags/final_bag.bag"/>  <!--final_bag_filtered.bag-->
+    <!--	rosrun tf static_transform_publisher 0 0 0 0 0.38267273 0 0.92388396 map camera 1000-->
 </launch>
