@@ -41,11 +41,5 @@ target_link_libraries(tf_broadcaster
  ${catkin_LIBRARIES}
 )
 
-add_library(animated_box SHARED src/animated_box.cc)
-target_link_libraries(animated_box ${GAZEBO_LIBRARIES})
-
 add_library(viz_pred_target SHARED src/viz_pred_target.cc)
 target_link_libraries(viz_pred_target ${GAZEBO_LIBRARIES})
-
-add_executable(target_gt src/animated_box_gt_pub.cc)
-target_link_libraries(target_gt ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES} pthread)
