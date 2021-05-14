@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+	<!--mavlink-->
+	<include file="$(find mavros)/launch/px4.launch">
+		<arg name="fcu_url" value="udp://:14550:@192.168.4.1:14555"/>
+	</include>
+
+	<param name="/hawkeye/is_simulation" value="false"/>
+	<node pkg="hawkeye" type="px4_mavros_offboard" name="hawkeye_px4_mavros_offboard_node"/>
+	<node pkg="hawkeye" type="target_estimator_3d" name="hawkeye_target_estimator_3d_node" args="-arg1"/>
+	<node pkg="hawkeye" type="tf_broadcaster" name="hawkeye_tf_broadcaster_node"/>
+	<node pkg="tf2_ros" type="static_transform_publisher" name="tf_camera_broadcaster"
+		  args="0 0 0 0 0.38267273 0 0.92388396 map camera"/>
+	<!--	rosrun tf static_transform_publisher 0 0 0 0 0.38267273 0 0.92388396 map camera 1000-->
+</launch>
